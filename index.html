@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Pat's Guitar Town</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#03050A; --bg-1:#06090F; --bg-2:#0A1220; --bg-3:#0F1A2E; --bg-4:#16233C;
+  --fg-1:#F3EDE2; --fg-2:#BDB3A3; --fg-3:#867C6D;
+  --brass:#C9A961; --brass-dim:#8F7740; --orange:#FFB454; --light-warm:#FFE2B8;
+  --font-display:"Spectral",Georgia,"Times New Roman",serif;
+  --font-body:"Manrope","Helvetica Neue",Arial,sans-serif;
+  --panel:rgba(6,9,15,.78); --line:rgba(201,169,97,.38);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg-0);color:var(--fg-1);font-family:var(--font-body);overflow:hidden;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+canvas#scene{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.label{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-2);font-weight:700}
+#chargement{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:var(--bg-0);transition:opacity .7s ease}
+#chargement.fini{opacity:0;pointer-events:none}
+#chargement p{font-family:var(--font-display);font-size:20px;color:var(--fg-2);letter-spacing:.02em}
+#chargement i{display:block;width:160px;height:1px;background:var(--bg-4);margin:14px auto 0;position:relative;overflow:hidden}
+#chargement i::after{content:"";position:absolute;inset:0;width:40%;background:var(--orange);animation:file 1.2s ease-in-out infinite}
+@keyframes file{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+#haut{position:fixed;left:max(16px,env(safe-area-inset-left));top:max(16px,env(safe-area-inset-top));z-index:10;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+#guitare{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+#guitare.ferme{display:none}
+#guitare .tete{display:flex;justify-content:space-between;align-items:center;gap:18px}
+#replier-guitare{font-size:12.5px;font-weight:600;color:var(--fg-2);padding:4px 10px;border-radius:999px;border:1px solid rgba(243,237,226,.22);min-height:28px}
+#replier-guitare:hover{color:var(--fg-1);border-color:var(--fg-1)}
+#guitare .rang{display:flex;gap:6px}
+.choix{padding:7px 13px;border-radius:999px;border:1px solid rgba(243,237,226,.28);font-size:14px;font-weight:600;color:var(--fg-1);min-height:36px}
+.choix[aria-pressed="true"]{background:var(--fg-1);color:var(--bg-0);border-color:var(--fg-1)}
+.pastille{width:28px;height:28px;border-radius:50%;border:2px solid rgba(243,237,226,.3);padding:0;margin:3px}
+.pastille[aria-pressed="true"]{border-color:var(--bg-0);box-shadow:0 0 0 3px var(--orange)}
+#ma-guitare{font-size:14.5px;font-weight:600;color:var(--fg-1);margin-top:-4px;max-width:230px;line-height:1.3}
+#mon-kit{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:-2px}
+#mon-kit[hidden]{display:none}
+#mon-kit-nom{font-size:14.5px;font-weight:600;color:var(--orange)}
+#oter-kit{font-size:12.5px;font-weight:600;color:var(--fg-2);padding:4px 10px;border-radius:999px;border:1px solid rgba(243,237,226,.22);min-height:28px;margin-left:auto}
+#oter-kit:hover{color:var(--fg-1);border-color:var(--fg-1)}
+#ou-guitare{font-size:12.5px;color:var(--fg-2);max-width:230px;line-height:1.35;margin-top:-4px}
+#finis{position:fixed;left:calc(50% + min(170px,14vw));bottom:max(150px,calc(env(safe-area-inset-bottom) + 140px));transform:translate(0,10px);z-index:12;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;padding:10px 16px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;max-width:calc(100vw - 32px)}
+#finis.visible{opacity:1;pointer-events:auto;transform:translate(0,0)}
+#finis .rang{display:flex;gap:2px;flex-wrap:wrap;justify-content:center}
+#finis .pastille{width:34px;height:34px}
+#finis-nom{font-size:14px;font-weight:600;color:var(--fg-1);text-align:center}
+@media (max-width:760px){ #finis{left:auto;right:max(12px,env(safe-area-inset-right));bottom:max(170px,calc(env(safe-area-inset-bottom) + 160px));max-width:124px;padding:9px 8px 10px} #finis .pastille{width:32px;height:32px} #finis-nom{font-size:12.5px} }
+@media (pointer:coarse){ #finis{bottom:calc(env(safe-area-inset-bottom) + 250px)} }
+#raccourcis button.ici{background:rgba(255,180,84,.2);border-color:var(--orange);color:var(--fg-1)}
+@media (max-width:760px){ body.au-magasin #salle{width:auto;min-width:0;max-width:calc(100vw - 196px);padding:6px;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:5px}
+  body.au-magasin #salle .label,body.au-magasin #salle strong,body.au-magasin #deplier-salle{display:none}
+  body.au-magasin #raccourcis{flex-direction:row;gap:4px;margin:0} body.au-magasin #raccourcis button{padding:5px 8px;min-height:32px;font-size:12px}
+  body.au-magasin #sortir{min-height:32px;padding:5px 10px;font-size:12.5px} }
+@media (max-width:760px){ body.au-magasin #raccourcis,body.au-cinema #raccourcis{flex-wrap:wrap;justify-content:flex-end} }
+@media (max-width:760px){ body.au-cinema #salle{width:auto;min-width:0;max-width:calc(100vw - 196px);padding:6px;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:5px}
+  body.au-cinema #salle .label,body.au-cinema #salle strong,body.au-cinema #deplier-salle{display:none}
+  body.au-cinema #raccourcis{flex-direction:row;gap:4px;margin:0} body.au-cinema #raccourcis button{padding:5px 8px;min-height:32px;font-size:12px}
+  body.au-cinema #sortir{min-height:32px;padding:5px 10px;font-size:12.5px} }
+@media (max-width:760px){ body.au-studio #salle{width:auto;min-width:0;max-width:calc(100vw - 196px);padding:6px;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:5px}
+  body.au-studio #salle .label,body.au-studio #salle strong,body.au-studio #deplier-salle{display:none}
+  body.au-studio #raccourcis{flex-direction:row;gap:4px;margin:0} body.au-studio #raccourcis button{padding:5px 8px;min-height:32px;font-size:12px}
+  body.au-studio #sortir{min-height:32px;padding:5px 10px;font-size:12.5px} }
+#compteur{padding:8px 13px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--fg-2)}
+#compteur svg{width:14px;height:16px;fill:var(--orange);opacity:.35;transition:opacity .4s}
+#compteur.trouve svg{opacity:1}
+#compteur.trouve{color:var(--fg-1)}
+#ouvrir-guitare{display:none;padding:10px 15px;font-size:14px;font-weight:600}
+#ouvrir-guitare.visible{display:block}
+#mortaise{position:fixed;right:max(16px,env(safe-area-inset-right));top:max(16px,env(safe-area-inset-top));z-index:10;padding:10px;width:268px}
+#mortaise header{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 8px}
+#mortaise header span:last-child{font-size:13px;color:var(--fg-2);font-weight:500}
+#carte{display:block;width:248px;height:248px;border-radius:10px;cursor:pointer;background:var(--bg-1)}
+#bouton-carte{display:none;position:fixed;right:max(16px,env(safe-area-inset-right));top:max(16px,env(safe-area-inset-top));z-index:11;padding:10px 16px;font-size:14px;font-weight:600}
+#fermer-carte{display:none}
+#salle{position:fixed;right:max(16px,env(safe-area-inset-right));top:max(16px,env(safe-area-inset-top));z-index:10;padding:14px 16px 16px;display:none;flex-direction:column;gap:6px;min-width:210px}
+#salle strong{font-family:var(--font-display);font-weight:500;font-size:26px;line-height:1.15;margin-bottom:8px}
+#sortir{padding:10px 16px;border-radius:999px;border:1px solid rgba(243,237,226,.34);font-weight:600;font-size:15px;min-height:42px}
+@media (hover:hover){ #sortir:hover{background:var(--fg-1);color:var(--bg-0)} }
+body.dedans #salle{display:flex}
+#lieu li.attend span,#lieu li.attend span:last-child{color:var(--orange)}
+body.dedans #mortaise,body.dedans #bouton-carte{display:none !important}
+body.descente #haut,body.descente #bouton-carte,body.descente #mortaise,body.descente #aide,body.descente #consigne,body.descente #manette,body.descente #entrer,body.descente #finis,body.descente #salle,body.descente #avis{visibility:hidden !important}
+#passer{display:none;position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:40;padding:9px 16px;border-radius:999px;border:1px solid rgba(201,169,97,.4);background:rgba(3,5,10,.42);color:var(--fg-2);font:600 13px/1 var(--font-body,Manrope),sans-serif;letter-spacing:.02em;cursor:pointer;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+body.descente #passer{display:block}
+@media (hover:hover){ #passer:hover{color:var(--fg-1);border-color:rgba(201,169,97,.8)} }
+#titre-descente{position:fixed;left:0;right:0;top:64%;z-index:30;text-align:center;pointer-events:none;opacity:0;font-family:var(--font-display);font-weight:600;font-size:clamp(34px,6vw,64px);letter-spacing:.01em;color:#f3ede2;text-shadow:0 2px 24px rgba(3,5,10,.85)}
+#entrer.muet kbd{display:none} #entrer.muet{pointer-events:none}
+#entrer{position:fixed;left:50%;bottom:max(34px,calc(env(safe-area-inset-bottom) + 24px));transform:translate(-50%,16px);z-index:12;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;
+  padding:13px 22px;border-radius:999px;background:var(--fg-1);color:var(--bg-0);font-weight:700;font-size:15px;display:flex;gap:10px;align-items:center;white-space:nowrap;box-shadow:0 10px 40px rgba(255,180,84,.25)}
+#entrer.visible{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+#entrer kbd{font:600 11px var(--font-body);padding:3px 7px;border-radius:6px;background:rgba(3,5,10,.12);letter-spacing:.04em}
+#aide{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9;font-size:14px;color:var(--fg-2);padding:9px 16px;transition:opacity .5s;white-space:nowrap}
+#aide b{color:var(--fg-1);font-weight:600}
+#aide.cache{opacity:0}
+#manette{position:fixed;left:max(22px,env(safe-area-inset-left));bottom:max(26px,calc(env(safe-area-inset-bottom) + 14px));width:128px;height:128px;border-radius:50%;z-index:12;display:none;
+  background:rgba(6,9,15,.45);border:1px solid rgba(243,237,226,.18);touch-action:none;opacity:.5;transition:opacity .25s}
+#manette.actif{opacity:1}
+#consigne{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 122px);transform:translateX(-50%);z-index:9;display:none;font-size:15px;font-weight:600;color:var(--fg-1);padding:11px 18px;white-space:nowrap;transition:opacity .6s}
+#consigne.cache{opacity:0;pointer-events:none}
+#manette i{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px;border-radius:50%;background:rgba(243,237,226,.85);box-shadow:0 4px 18px rgba(0,0,0,.5)}
+#avis{position:fixed;left:50%;top:max(20px,env(safe-area-inset-top));transform:translate(-50%,-10px);z-index:20;padding:10px 18px;font-size:14px;font-weight:600;opacity:0;transition:opacity .4s,transform .4s;pointer-events:none;white-space:nowrap}
+#avis.visible{opacity:1;transform:translate(-50%,0)}
+#avis span{color:var(--orange)}
+#lieu{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:rgba(3,5,10,.62);opacity:0;pointer-events:none;transition:opacity .3s;padding:20px}
+#lieu.ouvert{opacity:1;pointer-events:auto}
+#lieu article{max-height:calc(100dvh - 40px);overflow:auto;width:min(560px,100%);padding:30px 30px 26px;border-radius:18px;background:linear-gradient(180deg,var(--bg-3),var(--bg-2));border:1px solid var(--line);transform:translateY(14px);transition:transform .3s;box-shadow:0 30px 90px rgba(0,0,0,.6)}
+#lieu.ouvert article{transform:none}
+#lieu h2{font-family:var(--font-display);font-weight:500;font-size:clamp(30px,5vw,40px);margin:8px 0 10px;line-height:1.1}
+#lieu p{color:var(--fg-2);line-height:1.6;margin:0 0 18px;font-size:16px}
+#lieu ul{list-style:none;margin:0 0 22px;padding:0;border-top:1px solid rgba(243,237,226,.1)}
+#lieu li{padding:13px 2px;border-bottom:1px solid rgba(243,237,226,.1);display:flex;justify-content:space-between;gap:14px;font-size:15px}
+#lieu li span:last-child{color:var(--fg-3);font-size:13px;white-space:nowrap}
+#lieu footer{display:flex;justify-content:space-between;align-items:center;gap:12px}
+#lieu footer small{color:var(--fg-3);font-size:12px}
+#fermer-lieu{padding:11px 20px;border-radius:999px;background:var(--fg-1);color:var(--bg-0);font-weight:700;font-size:14px}
+#voile{position:fixed;inset:0;z-index:25;background:var(--bg-0);opacity:0;pointer-events:none;transition:opacity .22s}
+#voile.noir{opacity:1}
+@media (max-width:760px){
+  #mortaise{display:none;left:50%;top:50%;right:auto;transform:translate(-50%,-50%);width:min(92vw,360px);padding:14px;z-index:28}
+  #mortaise.ouvert{display:block}
+  #mortaise.ouvert #carte{width:100%;height:auto;aspect-ratio:1}
+  #mortaise.ouvert #fermer-carte{display:block;width:100%;margin-top:12px;padding:12px;border-radius:999px;background:var(--fg-1);color:var(--bg-0);font-weight:700}
+  #bouton-carte{display:block}
+  #aide{display:none}
+}
+@media (max-width:760px){
+  #salle{min-width:0;width:148px;padding:10px 11px 11px;gap:4px} #salle .label{font-size:10.5px} #salle strong{font-size:16.5px;margin-bottom:5px} #sortir{font-size:13px;padding:7px 10px;min-height:36px} }
+@media (pointer:coarse){ #manette{display:block} #consigne{display:block} #aide{display:none} #entrer kbd{display:none} #entrer{bottom:calc(env(safe-area-inset-bottom) + 178px)} }
+#raccourcis{display:flex;flex-direction:column;gap:6px;margin-bottom:2px}
+#raccourcis[hidden]{display:none}
+#raccourcis button{padding:8px 12px;border-radius:999px;border:1px solid rgba(255,180,84,.6);color:var(--light-warm);font-weight:600;font-size:14px;min-height:36px;text-align:center}
+@media (hover:hover){ #raccourcis button:hover{background:rgba(255,180,84,.16)} }
+@media (max-width:760px){ #raccourcis button{font-size:12.5px;padding:6px 8px;min-height:34px} }
+#aide{transition:opacity .25s ease} body.invite #aide{opacity:0;pointer-events:none}
+#deplier-salle{display:none;padding:6px 12px;border-radius:999px;border:1px solid rgba(255,180,84,.6);color:var(--light-warm);font-weight:600;font-size:12.5px;min-height:34px}
+@media (max-width:900px){ body.pres-arche:not(.salle-ouverte) #salle{width:auto;min-width:0;padding:6px;gap:5px} body.pres-arche:not(.salle-ouverte) #salle .label,body.pres-arche:not(.salle-ouverte) #salle strong,body.pres-arche:not(.salle-ouverte) #raccourcis{display:none}
+  body.pres-arche:not(.salle-ouverte) #deplier-salle{display:block} body.pres-arche:not(.salle-ouverte) #sortir{min-height:34px;padding:6px 12px} }
+#cinema{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;background:linear-gradient(180deg,var(--bg-1),var(--bg-0));-webkit-user-select:text;user-select:text}
+#cinema.ouvert{display:flex}
+#cine-tete{flex:none;display:flex;align-items:center;gap:10px;padding:max(12px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 12px max(16px,env(safe-area-inset-left));border-bottom:1px solid var(--line);background:var(--bg-2)}
+#cine-tete div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#cine-tete .label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cine-titre{margin:0;font-family:var(--font-display);font-weight:500;font-size:24px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cine-retour,#cine-vers-ecran{display:none;flex:none;padding:9px 16px;border-radius:999px;font-weight:700;font-size:14px;min-height:40px}
+#cine-retour{background:var(--fg-1);color:var(--bg-0)}
+#cine-vers-ecran{border:1px solid rgba(255,180,84,.6);color:var(--light-warm);font-weight:600}
+#cine-vers-ecran[hidden]{display:none !important}
+#cine-fermer{flex:none;padding:9px 16px;border-radius:999px;background:var(--fg-1);color:var(--bg-0);font-weight:700;font-size:14px;min-height:40px}
+#cinema[data-vue=lecture] #cine-tete{background:#0b0d12;border-bottom:1px solid var(--brass-dim)}
+#cinema[data-vue=lecture] #cine-retour,#cinema[data-vue=lecture] #cine-vers-ecran{display:block}
+#cinema[data-vue=lecture] #cine-fermer{background:none;color:var(--fg-2);border:1px solid rgba(201,169,97,.35);width:40px;padding:0;font-weight:500;font-size:15px}
+#cine-corps{flex:1;min-height:0;display:flex;flex-direction:column}
+#cine-vue-liste,#cine-vue-vide,#cine-vue-erreur,#cine-vue-attente,#cine-vue-youtube{display:none;position:relative;flex:1;min-height:0;flex-direction:column;width:100%;max-width:860px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
+#cinema[data-vue=youtube] #cine-vue-youtube,#cinema[data-vue=liste] #cine-vue-liste,#cinema[data-vue=vide] #cine-vue-vide,#cinema[data-vue=erreur] #cine-vue-erreur,#cinema[data-vue=attente] #cine-vue-attente{display:flex}
+#cine-champ{flex:none;position:relative;margin-bottom:10px}
+#cine-champ[hidden]{display:none}
+#cine-cherche{width:100%;padding:13px 46px 13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--bg-3);color:var(--fg-1);font:500 16px var(--font-body);outline:none;-webkit-appearance:none;appearance:none}
+#cine-cherche:focus{border-color:var(--orange)}
+#cine-cherche::placeholder{color:var(--fg-3)}
+#cine-cherche::-webkit-search-cancel-button,#cine-cherche::-webkit-search-decoration{-webkit-appearance:none;appearance:none;display:none}
+#cine-efface{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;color:var(--fg-1);font-size:17px;line-height:1}
+#cine-efface[hidden]{display:none}
+#cine-sous{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 2px 10px}
+#cine-compte{margin:0;font-size:13.5px;color:var(--fg-2)}
+#cine-mode{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#cine-mode span{font-size:12.5px;color:var(--fg-3);margin-right:2px}
+#cine-mode button{padding:6px 13px;border-radius:999px;border:1px solid rgba(201,169,97,.4);font-size:13px;font-weight:600;color:var(--fg-2);min-height:34px}
+#cine-mode button[aria-pressed=true]{background:var(--brass);border-color:var(--brass);color:var(--bg-0)}
+#cine-ignorees{flex:none;margin:0 2px 10px;font-size:13px;line-height:1.45;color:var(--orange)}
+#cine-ignorees[hidden]{display:none}
+#cine-liste{position:relative;flex:1;min-height:0;overflow-y:auto;list-style:none;margin:0;padding:0 0 max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:6px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(201,169,97,.4) transparent}
+#cine-liste li{flex:none}
+#cine-liste .groupe{position:sticky;top:0;z-index:2;padding:7px 4px 5px;font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--brass);background:var(--bg-0);border-bottom:1px solid rgba(201,169,97,.3)}
+#cine-liste button{width:100%;display:flex;align-items:center;gap:14px;text-align:left;padding:6px 15px 6px 6px;border-radius:11px;background:var(--bg-2);border:1px solid rgba(201,169,97,.22);min-height:64px}
+#cine-liste img,#cine-liste i{flex:none;width:92px;height:52px;border-radius:7px;object-fit:cover;background:var(--bg-4)}
+#cine-liste i{display:grid;place-items:center;font-style:normal;font-size:16px;color:var(--orange);border:1px solid rgba(201,169,97,.25)}
+#cine-liste b{flex:1 1 auto;min-width:0;font-weight:600;font-size:16px;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#cine-liste span{flex:none;font-size:14px;color:var(--fg-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+#cine-liste .vide{color:var(--fg-2);padding:14px 4px}
+@media (hover:hover){ #cine-liste button:hover{border-color:var(--orange);background:var(--bg-3)} #cine-mode button:hover{border-color:var(--brass)} #cine-barre button:hover{color:var(--light-warm)} }
+#cine-liste button:focus-visible,#cine-fermer:focus-visible,#cine-retour:focus-visible,#cine-reessayer:focus-visible,#cine-mode button:focus-visible,#cine-efface:focus-visible,#cine-vers-ecran:focus-visible,#cine-barre button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+#cine-vue-vide,#cine-vue-erreur,#cine-vue-attente{justify-content:center;align-items:flex-start;gap:14px;padding-bottom:12vh}
+#cine-vue-vide h3,#cine-vue-erreur h3{margin:0;font-family:var(--font-display);font-weight:500;font-size:26px;line-height:1.2}
+#cine-vue-vide p,#cine-vue-erreur p,#cine-vue-attente p{margin:0;font-size:16px;line-height:1.55;color:var(--fg-2);max-width:54ch}
+#cine-vue-vide b,#cine-vue-erreur b{color:var(--light-warm);font-weight:600}
+#cine-erreur-detail{color:var(--orange) !important}
+#cine-reessayer{padding:10px 18px;border-radius:999px;border:1px solid rgba(255,180,84,.6);color:var(--light-warm);font-weight:600;min-height:42px}
+#cine-vue-vide [data-pour]{display:none;flex-direction:column;gap:14px}
+#cinema[data-porte=cours] #cine-vue-vide [data-pour=cours],#cinema[data-porte=spectacles] #cine-vue-vide [data-pour=spectacles]{display:flex}
+#cine-vue-youtube{gap:12px;overflow-y:auto;padding-bottom:max(18px,env(safe-area-inset-bottom));scrollbar-width:thin;scrollbar-color:rgba(201,169,97,.4) transparent}
+#yt-forme{flex:none;display:flex;flex-direction:column;gap:9px;margin:0}
+#yt-forme label{font-family:var(--font-display);font-weight:500;font-size:22px;line-height:1.25;color:var(--fg-1)}
+#yt-rang{display:flex;gap:8px}
+#yt-lien{flex:1;min-width:0;padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:var(--bg-3);color:var(--fg-1);font:500 16px var(--font-body);outline:none;-webkit-appearance:none;appearance:none}
+#yt-lien:focus{border-color:var(--orange)}
+#yt-lien::placeholder{color:var(--fg-3)}
+#yt-jouer{flex:none;padding:0 22px;border-radius:12px;background:var(--orange);color:var(--bg-0);font-weight:700;font-size:15.5px;min-height:48px}
+#yt-avis{margin:0;font-size:14.5px;line-height:1.5;color:var(--orange)}
+#yt-avis[hidden],#yt-rien[hidden],#yt-titre-liste[hidden]{display:none}
+#yt-note{flex:none;margin:0;font-size:13.5px;line-height:1.5;color:var(--fg-3);max-width:60ch}
+#yt-titre-liste{flex:none;margin:10px 0 0;font-family:var(--font-display);font-size:17px;font-weight:600;color:var(--brass);padding-bottom:5px;border-bottom:1px solid rgba(201,169,97,.3)}
+#yt-rien{flex:none;margin:0;font-size:15px;color:var(--fg-2)}
+#yt-liste{flex:none;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+#yt-liste li{display:flex;gap:6px;align-items:stretch}
+#yt-liste .rejouer{flex:1;min-width:0;display:flex;align-items:center;gap:14px;text-align:left;padding:6px 15px 6px 6px;border-radius:11px;background:var(--bg-2);border:1px solid rgba(201,169,97,.22);min-height:60px}
+#yt-liste .rejouer i{flex:none;width:64px;height:46px;border-radius:7px;display:grid;place-items:center;font-style:normal;font-size:15px;color:var(--orange);background:var(--bg-4);border:1px solid rgba(201,169,97,.25)}
+#yt-liste .rejouer span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#yt-liste .rejouer b{font-weight:600;font-size:15.5px;line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#yt-liste .rejouer small{font-size:12.5px;color:var(--fg-3);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#yt-liste .enlever{flex:none;width:48px;border-radius:11px;border:1px solid rgba(201,169,97,.22);color:var(--fg-2);font-size:15px}
+@media (hover:hover){ #yt-liste .rejouer:hover{border-color:var(--orange);background:var(--bg-3)} #yt-liste .enlever:hover{color:var(--fg-1);border-color:var(--fg-1)} }
+#yt-liste button:focus-visible,#yt-jouer:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+@media (max-width:520px){ #yt-forme label{font-size:19px} #yt-jouer{padding:0 16px} }
+#cine-vue-lecture{display:none;flex:1;min-height:0;background:#000}
+#cinema[data-vue=lecture] #cine-vue-lecture{display:flex}
+#cine-scene{flex:1;min-width:0;min-height:0;display:flex}
+#cine-scene video,#cine-scene iframe{flex:1;min-width:0;min-height:0;width:100%;height:100%;border:0;background:#000;object-fit:contain}
+#cine-reserve{position:fixed;left:0;top:0;width:2px;height:2px;overflow:hidden;opacity:0;pointer-events:none;z-index:-1}
+#cine-reserve video{width:2px;height:2px}
+#cine-cadre-ecran{position:fixed;z-index:40;background:#000;overflow:hidden}
+#cine-cadre-ecran[hidden]{display:none}
+#cine-cadre-ecran iframe{width:100%;height:100%;border:0;display:block}
+#cine-barre{position:fixed;left:50%;bottom:max(22px,calc(env(safe-area-inset-bottom) + 14px));transform:translateX(-50%);z-index:45;display:flex;align-items:center;gap:6px;padding:8px 10px;max-width:calc(100vw - 24px)}
+#cine-barre[hidden]{display:none}
+#cine-barre-titre{flex:1 1 auto;min-width:0;max-width:34vw;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 6px}
+#cine-barre button{flex:none;padding:7px 13px;border-radius:999px;border:1px solid rgba(243,237,226,.28);font-size:13.5px;font-weight:600;min-height:38px;white-space:nowrap}
+#cine-jouer{width:42px;padding:0 !important;background:var(--fg-1);color:var(--bg-0);border-color:var(--fg-1) !important;font-size:14px !important}
+#cine-jouer[hidden]{display:none}
+#cine-barre-fermer{width:38px;padding:0 !important;color:var(--fg-2)}
+body.cine-ecran #haut,body.cine-ecran #salle,body.cine-ecran #entrer,body.cine-ecran #aide,body.cine-ecran #finis,body.cine-ecran #consigne,body.cine-ecran #manette,body.cine-ecran #avis{display:none !important}
+@media (max-width:620px){ #cine-titre{font-size:19px} #cine-tete{gap:8px} #cine-fermer,#cine-retour,#cine-vers-ecran{font-size:12.5px;padding:8px 12px;min-height:38px} #cine-tete .label{font-size:10.5px}
+  #cinema[data-vue=lecture] #cine-fermer{width:38px} #cine-liste img,#cine-liste i{width:78px;height:44px} #cine-liste b{font-size:15px} #cine-liste span{font-size:13px}
+  #cine-barre{gap:4px;padding:7px 8px} #cine-barre button{padding:7px 10px;font-size:12.5px} #cine-barre-titre{display:none} }
+body.carte-repliee #mortaise{display:none;left:50%;top:50%;right:auto;transform:translate(-50%,-50%);width:min(92vw,360px);padding:14px;z-index:28}
+body.carte-repliee #mortaise.ouvert{display:block}
+body.carte-repliee #mortaise.ouvert #carte{width:100%;height:auto;aspect-ratio:1}
+body.carte-repliee #mortaise.ouvert #fermer-carte{display:block;width:100%;margin-top:12px;padding:12px;border-radius:999px;background:var(--fg-1);color:var(--bg-0);font-weight:700}
+body.carte-repliee #bouton-carte{display:block}
+#cinema[data-vue=vide]{background:linear-gradient(180deg,rgba(6,9,15,.86),rgba(3,5,10,.6))}
+#cine-vue-vide{align-items:center !important}
+#cine-vue-vide > div{width:100%;max-width:520px;display:flex;flex-direction:column;gap:14px;padding:26px 28px;border-radius:18px;background:rgba(6,9,15,.82);border:1px solid var(--line)}
+#cine-liste button:focus-visible{outline-offset:-2px}
+#cine-jouer{display:grid;place-items:center}
+#cine-jouer[hidden]{display:none}
+</style>
+</head>
+<body>
+<canvas id="scene" aria-label="Le village en 3D"></canvas>
+<div id="chargement"><div><p></p><i></i></div></div>
+<div id="titre-descente" aria-hidden="true">Pat's Guitar Town</div>
+<button id="passer">Passer</button>
+<div id="haut">
+  <button id="ouvrir-guitare" class="card" aria-expanded="false">Ton bonhomme</button>
+  <div id="guitare" class="card">
+    <div class="tete"><span class="label">Ton bonhomme</span><button id="replier-guitare" aria-label="Replier le choix du bonhomme">Replier</button></div>
+    <div class="rang" id="avatars">
+      <button class="choix" data-avatar="casual" aria-pressed="true">Chandail</button>
+      <button class="choix" data-avatar="hoodie" aria-pressed="false">Coton ouaté</button>
+    </div>
+    <div id="mon-kit" hidden><span class="label">Ton kit</span><span id="mon-kit-nom"></span><button id="oter-kit">Enlever</button></div>
+    <span class="label">Sur ton dos</span>
+    <span id="ma-guitare"></span>
+    <span id="ou-guitare">Guitares et kits : au magasin de musique.</span>
+  </div>
+  <div id="compteur" class="card" title="Médiators trouvés">
+    <svg viewBox="0 0 14 16"><path d="M7 15.6C4.2 12 .4 7.7.4 4.4.4 1.9 3.2.4 7 .4s6.6 1.5 6.6 4c0 3.3-3.8 7.6-6.6 11.2z"/></svg>
+    <span id="compte">Médiators 0 / 6</span>
+  </div>
+</div>
+<button id="bouton-carte" class="card">Carte</button>
+<aside id="mortaise" class="card">
+  <header><span class="label">Pat's Guitar Town</span><span>Choisis un lieu</span></header>
+  <canvas id="carte" width="432" height="432"></canvas>
+  <button id="fermer-carte">Fermer la carte</button>
+</aside>
+<aside id="salle" class="card"><span class="label" id="salle-lieu"></span><strong id="salle-nom"></strong><button id="deplier-salle" aria-label="Montrer la carte de la salle">La salle ▾</button><div id="raccourcis" hidden aria-label="Aller à"></div><button id="sortir">Sortir</button>
+  </aside>
+<div id="avis" class="card"></div>
+<div id="aide" class="card"><b>W A S D</b> ou les flèches pour marcher · <b>Maj</b> pour courir · la vue tourne quand tu vas de côté</div>
+<div id="consigne" class="card">Glisse le pouce pour marcher</div>
+<div id="finis" class="card" aria-label="Le fini de ta guitare"><span class="label">Le fini</span><div class="rang" id="finis-pastilles"></div><span id="finis-nom"></span></div>
+<button id="entrer"><span id="entrer-texte">Entrer</span><kbd>Entrée</kbd></button>
+<div id="manette" aria-hidden="true"><i></i></div>
+<div id="etiquettes" aria-hidden="true"></div>
+<div id="voile"></div>
+<div id="lieu" role="dialog" aria-modal="true" aria-labelledby="lieu-titre">
+  <article>
+    <span class="label" id="lieu-sur"></span>
+    <h2 id="lieu-titre"></h2>
+    <p id="lieu-texte"></p>
+    <ul id="lieu-liste"></ul>
+    <footer><small id="lieu-pied"></small><button id="fermer-lieu">Retour au village</button></footer>
+  </article>
+</div>
+<div id="cinema" role="dialog" aria-modal="true" aria-labelledby="cine-titre" data-vue="attente">
+  <header id="cine-tete">
+    <div><span class="label" id="cine-sur">Le cinéma</span><h2 id="cine-titre">Les capsules</h2></div>
+    <button id="cine-retour">‹ La liste</button>
+    <button id="cine-vers-ecran">Sur l’écran de la salle</button>
+    <button id="cine-fermer">Revenir à la salle</button>
+  </header>
+  <div id="cine-corps">
+    <section id="cine-vue-attente"><p>On ouvre la liste des capsules…</p></section>
+    <section id="cine-vue-liste">
+      <div id="cine-champ" hidden><input id="cine-cherche" type="search" autocomplete="off" spellcheck="false" placeholder="Chercher une capsule" aria-label="Chercher une capsule"><button id="cine-efface" aria-label="Effacer la recherche" hidden>✕</button></div>
+      <div id="cine-sous"><p id="cine-compte"></p></div>
+      <p id="cine-ignorees" hidden></p>
+      <ul id="cine-liste"></ul>
+    </section>
+    <section id="cine-vue-vide"><div data-pour="cours">
+      <h3>Aucune capsule pour l’instant.</h3>
+      <p>Les premières capsules arrivent bientôt.</p>
+    </div><div data-pour="spectacles">
+      <h3 id="cine-vide-spectacles"></h3>
+    </div></section>
+    <section id="cine-vue-youtube">
+      <form id="yt-forme" novalidate autocomplete="off">
+        <label for="yt-lien">Colle un lien YouTube : une vidéo ou une liste de lecture.</label>
+        <div id="yt-rang"><input id="yt-lien" type="text" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://youtu.be/…"><button id="yt-jouer" type="submit">Jouer</button></div>
+        <p id="yt-avis" role="status" hidden></p>
+      </form>
+      <p id="yt-note">Tes liens restent sur cet appareil. Aucun compte, aucune connexion ; la vidéo vient de YouTube seulement quand tu la lances.</p>
+      <h3 id="yt-titre-liste">Tes liens</h3>
+      <p id="yt-rien">Aucun lien gardé pour l’instant.</p>
+      <ul id="yt-liste"></ul>
+    </section>
+    <section id="cine-vue-erreur">
+      <h3>Les capsules ne sont pas disponibles pour l’instant.</h3><p id="cine-erreur-detail" hidden></p>
+      <p>Le reste du village marche comme avant.</p>
+      <button id="cine-reessayer">Réessayer</button>
+    </section>
+    <section id="cine-vue-lecture"><div id="cine-scene"></div></section>
+  </div>
+</div>
+<div id="cine-reserve" aria-hidden="true"></div>
+<div id="cine-cadre-ecran" hidden></div>
+<div id="cine-barre" class="card" hidden>
+  <button id="cine-jouer" aria-label="Pause"></button><span id="cine-barre-titre"></span>
+  <button id="cine-barre-liste">‹ La liste</button><button id="cine-barre-grand">En grand</button><button id="cine-barre-fermer" aria-label="Revenir dans la salle">✕</button>
+</div>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module" src="cinema.js"></script>
+<script type="module" src="village.js"></script>
+</body>
+</html>
