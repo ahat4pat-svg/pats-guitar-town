@@ -14,6 +14,8 @@ import { GUITARES, faireGuitare as faireGuitareExacte } from './guitares.js';
 import { PUBLIC, SANS_KITS } from './config.js';
 import { KITS, faireAtlasKit, piecesKit } from './kits.js';
 import { PORTES } from './portes.js';
+import { FICHES_ELEVES, definirEleveActif, coursOuvert } from './acces.js';
+import { faireMicro, fairePied, faireSono, fairePedale, faireIntras, faireChanteurs, animerChanteurs } from './chant.js';
 const OUTILS = [], NOM_STUDIO = '', ouvrirOutil = () => {};
 window.__village = { figer: false, temps: [] };
 const tic = (n) => window.__village.temps.push([n, Math.round(performance.now())]);
@@ -151,9 +153,9 @@ const LIEUX = {
   chapeau: { nom: 'Le chapeau', sur: 'Au centre du village', x: 0, z: 0, porte: [0, 7.6],
     texte: "Le coin de Pat. Son histoire, sa façon de jouer, et comment le joindre.",
     liste: [['Vingt ans de scène', 'à venir'], ['Pourquoi j\'enseigne', 'à venir'], ['Écrire à Pat', 'à venir']] },
-  ecole: { nom: 'L\'école', sur: 'Les cours de guitare', x: -46, z: -32, porte: [-46, -19.4],
-    texte: "Ton cours t'attend ici : les notes de la semaine, les exercices et la prochaine rencontre.",
-    liste: [['Ton prochain cours', 'essai'], ['Exercices de la semaine', 'essai'], ['S\'inscrire', 'essai']] },
+  ecole: { nom: 'L\'école', sur: 'Guitare et chant', x: -46, z: -32, porte: [-46, -19.4],
+    texte: "Les cours de guitare et les cours de chant t'attendent ici : les notes ou le texte de la semaine, les exercices et la prochaine rencontre.",
+    liste: [['Ton prochain cours de guitare', 'essai', '', 'guitare'], ['Exercices de guitare', 'essai', '', 'guitare'], ['Ton prochain cours de chant', 'essai', '', 'chant'], ['Exercices de chant', 'essai', '', 'chant'], ['S\'inscrire', 'essai']] },
   biblio: { nom: 'La bibliothèque', sur: 'Partitions, documents, Songbook', x: 46, z: -32, porte: [46, -17.9],
     texte: "Tout ce qui est papier. Tu cherches une pièce, elle s'ouvre sur place.",
     liste: [['Partitions et tablatures', 'essai'], ['Songbook : paroles et accords', 'essai'], ['Guitare Pat : ralentir, boucler', 'essai']] },
@@ -264,6 +266,7 @@ function faireEcole() {
   for (const c of [-1, 1]) lot.add(M.laiton, new THREE.CylinderGeometry(0.022, 0.022, 0.34, 10), T(c * 0.13, 1.12, 11.86));
   doux(lot, M.beton, 11.5, 0.1, 3.4, 0, 0.05, 13.2, 0.04);
   relief(lot, "L'école", 1.3, 0, 5.38, 13.3);
+  relief(lot, 'Guitare', 0.32, -3.2, 4.28, 13.22); relief(lot, 'Chant', 0.32, 3.2, 4.28, 13.22);
   for (const x of [-10.4, -7.0, 7.0, 10.4]) fenetre(lot, T(x, 2.35, 7.0), 2.4, 3.0, 'vitrine', { traverse: 0.7 });
   for (const x of [-10.4, -7.0, -3.5, 0, 3.5, 7.0, 10.4]) fenetre(lot, T(x, 5.75, 7.0), 1.8, 2.0, nivAlea(r, 0.6));
   for (const x of [-6.6, -3.3, 0, 3.3, 6.6]) fenetre(lot, T(x, 9.65, 3.55), 2.5, 1.8, nivAlea(r, 0.55), { traverse: 0 });
@@ -406,7 +409,9 @@ function faireMagasin() {
       P(corps(ac), 0, 0); P(new THREE.PlaneGeometry(0.052, ac ? 0.42 : 0.52), 0, ac ? 0.45 : 0.39); P(new THREE.PlaneGeometry(ac ? 0.08 : 0.065, 0.16), ac ? 0 : -0.012, ac ? 0.73 : 0.72);
       lot.add(mS, new THREE.PlaneGeometry(0.03, 0.3 * e + 0.4), T(x, (0.5 + 0.3 * e + 0.4) / 2 + 0.3, 8.29)); lot.add(mS, new THREE.PlaneGeometry(0.5, 0.03), T(x, 0.52, 8.29)); };
     silhouette(-5.0, true, 1.75, 0.06); silhouette(-3.1, false, 1.75, -0.07); silhouette(4.6, true, 1.75, -0.05);
-    lot.add(mS, new THREE.PlaneGeometry(1.15, 0.95), T(2.85, 0.98, 8.29)); lot.add(mS, new THREE.PlaneGeometry(0.32, 0.05), T(2.85, 1.5, 8.29)); }
+    lot.add(mS, new THREE.PlaneGeometry(1.15, 0.95), T(2.85, 0.98, 8.29)); lot.add(mS, new THREE.PlaneGeometry(0.32, 0.05), T(2.85, 1.5, 8.29));
+    lot.add(mS, new THREE.CircleGeometry(0.075, 14), T(5.72, 1.78, 8.3)); lot.add(mS, new THREE.PlaneGeometry(0.05, 0.38), T(5.72, 1.48, 8.3));
+    lot.add(mS, new THREE.PlaneGeometry(0.03, 0.62), T(6.02, 1.2, 8.3)); lot.add(mS, new THREE.PlaneGeometry(0.26, 0.03), T(5.9, 0.9, 8.3)); }
   for (const c of [-1, 1]) for (const z of [-3.6, 0, 3.6]) { fenetre(lot, T(c * 7.52, 2.35, z, c * Math.PI / 2), 1.9, 2.6, nivAlea(r, 0.45)); fenetre(lot, T(c * 7.52, 5.0, z, c * Math.PI / 2), 1.9, 1.1, nivAlea(r, 0.4), { traverse: 0 }); }
   for (const x of [-4.5, 0, 4.5]) fenetre(lot, T(x, 2.35, -6.02, Math.PI), 1.8, 2.6, nivAlea(r, 0.2));
   doux(lot, M.beton, 13.8, 0.1, 3.0, 0, 0.05, 9.4, 0.04);
@@ -533,7 +538,8 @@ function faireDecor() {
 }
 const Y0 = -300;
 const INT = {
-  ecole: { nom: "L'école", salle: 'La salle de cours', o: [-60, 600], l: 17, p: 11.5, h: 4.3, depart: [0, 2.2], hemi: 0.46, luneForce: 0.85, lune: [-4, 26, 5], ombre: 12 },
+  ecole: { nom: "L'école", salle: 'Cours de guitare', o: [-60, 600], l: 17, p: 11.5, h: 4.3, depart: [0, 2.2], hemi: 0.46, luneForce: 0.85, lune: [-4, 26, 5], ombre: 12 },
+  chant: { nom: "L'école", salle: 'Cours de chant', o: [-60, 840], l: 13, p: 10, h: 4.3, depart: [0, 3.15], parent: 'ecole', retour: () => ({ x: 5.55, z: 3.5, ry: Math.PI, lacet: 0 }), hemi: 0.48, hemiCiel: 0xffe4d2, luneForce: 0.9, lune: [-3, 26, 4], ombre: 12 },
   biblio: { nom: 'La bibliothèque', salle: 'La grande salle', o: [60, 600], l: 24, p: 16, h: 8.4, marge: 0.5, depart: [0, 4.0], hemi: 0.3, luneForce: 0.9, lune: [-5, 28, 6], ombre: 16, portrait: { recul: 9, haut: 3.6, fov: 78 } },
   magasin: { nom: 'Le magasin de musique', salle: 'Le magasin', o: [-150, 720], l: 18, p: 12, h: 4.6, depart: [0, 3.4], cadrePano: { recul: 6.4, haut: 3.0, fov: 64 }, hemi: 0.38, luneForce: 0.7, lune: [-4, 26, 5], ombre: 13, flou: 0.24 },
   cinema: { nom: 'Le cinéma', salle: 'La salle', o: [150, 720], l: 14, p: 20, h: 6.4, depart: [0, 7.7], hemi: 0.26, luneForce: 0.45, lune: [-3, 26, 6], ombre: 13, flou: 0.22, portrait: { recul: 7.5, haut: 3.2, fov: 72 } },
@@ -543,6 +549,10 @@ for (const I of Object.values(INT)) { I.boites = []; I.ronds = []; I.points = []
 const PANNEAUX = {
   songbook: { nom: 'Songbook', sur: 'La bibliothèque · rallonge', texte: 'Paroles et accords. À venir.', liste: [['Paroles et accords', 'essai']] },
   guitarepat: { nom: 'Guitare Pat', sur: 'La bibliothèque · rallonge', texte: 'Ralentir, boucler. À venir.', liste: [['Ralentir, boucler', 'essai']] },
+  'cours-chant': { nom: 'Cours de chant', sur: "L'école · salle de chant", texte: "Le souffle, la justesse et le texte. Le cours de chant se donne à côté du cours de guitare.",
+    liste: [['Ton prochain cours de chant', 'essai', '', 'chant'], ['Exercices de souffle', 'essai', '', 'chant'], ['Le texte de la semaine', 'essai', '', 'chant']] },
+  'materiel-chant': { nom: 'Le matériel de chant', sur: 'Le magasin de musique', texte: "Micros, pieds, sonorisation portable et effets pour la voix. Comme les guitares, tout est en vitrine.",
+    liste: [['Micro dynamique', 'en vitrine'], ['Micro à condensateur', 'en vitrine'], ['Micro sans fil', 'en vitrine'], ['Pied de micro', 'en vitrine'], ['Sonorisation portable', 'en vitrine'], ['Moniteurs intra-auriculaires', 'en vitrine'], ['Pédale d\'effets pour la voix', 'en vitrine']] },
 };
 let dedans = null, enTransit = false, invite = null;
 function ambiance(I) {
@@ -566,7 +576,7 @@ function poserDedans(k, ou) {
   I.pano = null; if (I.cadrePano && !I.vu && !ou) { I.vu = true; I.pano = { t: 0 }; lacet = lacetVise = PANO(0); }
   document.body.classList.toggle('au-magasin', k === 'magasin'); document.body.classList.toggle('au-cinema', k === 'cinema'); document.body.classList.toggle('au-studio', k === 'studio');
   document.body.classList.add('dedans'); $('#salle-lieu').textContent = I.nom; $('#salle-nom').textContent = I.salle; $('#mortaise').classList.remove('ouvert');
-  $('#sortir').textContent = I.parent ? 'Le coin de Pat' : 'Sortir';  majRaccourcis();
+  $('#sortir').textContent = I.parent ? INT[I.parent].salle : 'Sortir'; majRaccourcis();
 }
 function poserDehors() {
   const k = dedans, L = LIEUX[k]; dedans = null; for (const J of Object.values(INT)) J.groupe.visible = false;
@@ -581,14 +591,16 @@ function entrer(k) { if (INT[k] && !dedans) fondu(() => poserDedans(k)); }
 const POSTES_STUDIO = { son: { x: -4.6, z: 0.75, ry: Math.PI, lacet: 0 }, montage: { x: 4.4, z: -2.75, ry: Math.PI, lacet: 0 }, 'libre-a': { x: 5.75, z: 2.1, ry: Math.PI / 2, lacet: -Math.PI / 2 }, 'libre-b': { x: -5.75, z: 2.1, ry: -Math.PI / 2, lacet: Math.PI / 2 } };
 const RACCOURCIS = { studio: OUTILS.filter((o) => POSTES_STUDIO[o.poste]).map((o) => [o.nom, { ...POSTES_STUDIO[o.poste], apres: () => ouvrirOutil(o.id) }]), biblio: [['Guitare Pat', { x: 5.7, z: -5.3, ry: Math.PI, lacet: 0 }], ['Songbook', { x: -6.9, z: -5.3, ry: Math.PI, lacet: 0 }]],
   cinema: [],
-  magasin: [['Fender', { x: -5.4, z: -2.3, ry: -Math.PI / 2, lacet: Math.PI / 2 }], ['Gretsch', { x: -5.4, z: 2.0, ry: -Math.PI / 2, lacet: Math.PI / 2 }], ['Gibson', { x: 0, z: -2.6, ry: Math.PI, lacet: 0 }], ['Demers', { x: 5.4, z: -0.9, ry: Math.PI / 2, lacet: -Math.PI / 2 }], ['Kits', { x: 5.0, z: 3.4, ry: 0, lacet: Math.PI }]] };
+  ecole: [['Cours de chant', { vers: 'chant', x: 0, z: 3.15, ry: Math.PI, lacet: 0 }]],
+  magasin: [['Fender', { x: -5.4, z: -2.3, ry: -Math.PI / 2, lacet: Math.PI / 2 }], ['Gretsch', { x: -5.4, z: 2.0, ry: -Math.PI / 2, lacet: Math.PI / 2 }], ['Gibson', { x: 0, z: -2.6, ry: Math.PI, lacet: 0 }], ['Demers', { x: 5.4, z: -0.9, ry: Math.PI / 2, lacet: -Math.PI / 2 }], ['Kits', { x: 5.0, z: 3.4, ry: 0, lacet: Math.PI }], ['Chant', { x: -5.55, z: 2.7, ry: Math.PI, lacet: 0 }]] };
 const CADRE_ARCHE = { recul: 4.2, haut: 3.0, fov: 62, pente: 0.17 };
 function allerDansSalle(d) { if (!dedans || enTransit || window.__pause) return; const k = dedans; fermerLieu(); fondu(() => { poserDedans(k, d); if (d.apres) { const att = () => (enTransit ? setTimeout(att, 120) : requestAnimationFrame(() => requestAnimationFrame(d.apres))); setTimeout(att, 200); } }); }
 function majRaccourcis() { const R2 = RACCOURCIS[dedans] || [], b = $('#raccourcis'); b.hidden = !R2.length; b.innerHTML = R2.map(([nom], i) => `<button data-i="${i}">${nom}</button>`).join(''); INT.magasin.murProche = -1; }
-function majMurProche() { if (dedans !== 'magasin') return; const I = INT.magasin, x = joueur.position.x - I.o[0], z = joueur.position.z - I.o[1], d = [x + I.l / 2, z + I.p / 2, I.l / 2 - x, I.p / 2 - z], m = Math.min(...d), k = d.indexOf(m), i = m >= 5 ? -1 : k === 0 ? (z < 0.3 ? 0 : 1) : k === 1 ? 2 : k === 2 ? 3 : (x > 1.8 && m < 3.4 ? 4 : -1);
+function majMurProche() { if (dedans !== 'magasin') return; const I = INT.magasin, x = joueur.position.x - I.o[0], z = joueur.position.z - I.o[1], d = [x + I.l / 2, z + I.p / 2, I.l / 2 - x, I.p / 2 - z], m = Math.min(...d), k = d.indexOf(m); let i = m >= 5 ? -1 : k === 0 ? (z < 0.3 ? 0 : 1) : k === 1 ? 2 : k === 2 ? 3 : (x > 1.8 && m < 3.4 ? 4 : -1);
+  if (x < -3.3 && x > -7.6 && z > 2.35 && z < 5.2) { const ic = RACCOURCIS.magasin.findIndex(([n]) => n === 'Chant'); if (ic >= 0) i = ic; }
   if (i !== I.murProche) { I.murProche = i; document.querySelectorAll('#raccourcis button').forEach((b, k) => b.classList.toggle('ici', k === i)); } }
 $('#deplier-salle').onclick = () => document.body.classList.add('salle-ouverte');
-$('#raccourcis').onclick = (e) => { const b = e.target.closest('button[data-i]'); if (b && RACCOURCIS[dedans]) { b.blur(); allerDansSalle(RACCOURCIS[dedans][+b.dataset.i][1]); } };
+$('#raccourcis').onclick = (e) => { const b = e.target.closest('button[data-i]'); if (b && RACCOURCIS[dedans]) { b.blur(); const d = RACCOURCIS[dedans][+b.dataset.i][1]; if (d.vers) passer(d.vers, d); else allerDansSalle(d); } };
 function passer(k, ou) { if (INT[k] && !enTransit) { fermerLieu(); fondu(() => poserDedans(k, ou)); } }
 function sortir() { if (!dedans) return; if (window.__cinema) window.__cinema.arreter(); fermerLieu(); const I = INT[dedans]; if (I.parent) passer(I.parent, I.retour ? I.retour() : null); else fondu(poserDehors); }
 const PT = 'Spectral, Georgia, serif', PC = 'Manrope, Arial, sans-serif';
@@ -724,12 +736,63 @@ function faireInterieurs() {
       for (let i = 0; i < 7; i++) a(MI.livres[i % 6], new THREE.BoxGeometry(0.05 + (i % 3) * 0.012, 0.26 + (i % 4) * 0.02, 0.2), -0.9 + i * 0.07, 1.0 + (i % 4) * 0.01, 0);
       a(M.laiton, cyl(0.06, 0.08, 0.03, 16), 0.6, 0.875, 0); a(M.laiton, cyl(0.012, 0.012, 0.3, 8), 0.6, 1.03, 0); a(MI.abat, new THREE.CylinderGeometry(0.1, 0.17, 0.2, 18, 1, true), 0.6, 1.24, 0); haloI(I, O + 0.36, 1.24, 0.15 - 0.6, 1.3, 0.25); boiteI(I, O, O + 0.66, -1.0, 1.3); }
     porteSortie(lot, T(0, 0, S - 0.04, Math.PI));
+    porteSortie(lot, T(5.55, 0, S - 0.04, Math.PI), 'Chant');
     for (const [x, z] of [[-4.6, -1.5], [4.6, -1.5], [-4.6, 3.0], [4.6, 3.0]]) suspension(I, lot, x, 3.5, z, h, 0.85);
     { lot.add(M.laiton, cyl(0.035, 0.035, 4.6, 12), T(0, 3.78, N + 0.34, 0, 0, Math.PI / 2)); for (const x of [-1.8, 1.8]) lot.add(M.laiton, cyl(0.012, 0.012, 0.32, 8), T(x, 3.78, N + 0.18, 0, Math.PI / 2)); lot.add(M.ampoule, new THREE.BoxGeometry(4.4, 0.012, 0.04), T(0, 3.745, N + 0.34)); }
     for (const [x, y, z, f] of [[-4.6, 3.3, -1.5, 15], [4.6, 3.3, -1.5, 15], [0, 3.4, -4.3, 14], [0, 3.5, 2.8, 17]]) lueurI(I, x, y, z, 0xffc98a, f, 12);
     lot.finir(I.groupe);
     pointI(I, 'tableau', 0, -4.2, 2.1, 'Voir · le tableau', () => (ouvrirLieu('ecole')));
+    pointI(I, 'chant', 5.55, S - 1.45, 1.15, 'Entrer · cours de chant', () => passer('chant', { x: 0, z: 3.15, ry: Math.PI, lacet: 0 }));
     pointI(I, 'sortie', 0, S - 0.7, 1.5, 'Sortir · retour au village', sortir);
+  }
+  tic('avant chant');
+  { const I = INT.chant, lot = new Lot(), { l, p, h } = I, N = -p / 2, S = p / 2, O = -l / 2, E = l / 2;
+    coque(lot, I, MI.platre);
+    lot.add(MI.nuit, new THREE.BoxGeometry(l, h - 1.1, 0.04), T(0, 1.1 + (h - 1.1) / 2, N + 0.02));
+    for (const [w, x, z, ry] of [[l, 0, N + 0.03, 0], [l, 0, S - 0.03, 0], [p, O + 0.03, 0, Math.PI / 2], [p, E - 0.03, 0, Math.PI / 2]]) { lot.add(MI.noyer, box(w, 1.1, 0.06, 0.01), T(x, 0.55, z, ry)); lot.add(MI.chene, box(w, 0.06, 0.1, 0.02), T(x, 1.12, z, ry)); lot.add(MI.ebene, box(w, 0.12, 0.08, 0.01), T(x, 0.06, z, ry)); }
+    for (const x of [-4.2, 4.2]) lot.add(MI.poutre, new THREE.BoxGeometry(0.26, 0.28, p), T(x, h - 0.14, 0));
+    const tVoix = toile(1024, 512, (g, L, H) => { g.fillStyle = '#140e12'; g.fillRect(0, 0, L, H); const r = alea(23);
+      for (let i = 0; i < 180; i++) { g.fillStyle = `rgba(255,255,255,${r() * 0.02})`; g.fillRect(r() * L, r() * H, 40 + r() * 160, 8 + r() * 20); }
+      g.fillStyle = 'rgba(244,236,230,.94)'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = 'italic 600 72px Georgia, serif'; g.fillText('La voix', L / 2, 78);
+      g.font = '600 54px Georgia, serif'; ['a', 'e', 'i', 'o', 'u'].forEach((v, i) => { const x = 180 + i * 166; g.beginPath(); g.arc(x, 210, 48, 0, 7); g.strokeStyle = 'rgba(244,236,230,.9)'; g.lineWidth = 3; g.stroke(); g.fillText(v, x, 214); });
+      g.font = 'italic 34px Georgia, serif'; g.fillText('do    ré    mi    fa    sol    la    si    do', L / 2, 330);
+      g.font = '600 30px Georgia, serif'; g.fillText('ma   mé   mi   mo   mu', L / 2, 400);
+      g.font = 'italic 28px Georgia, serif'; g.fillStyle = 'rgba(255,180,130,.9)'; g.fillText('Inspirer  ·  tenir la voyelle  ·  poser', L / 2, 462); });
+    const mVoix = new THREE.MeshStandardMaterial({ map: tVoix, emissiveMap: tVoix, emissive: 0xffffff, emissiveIntensity: 0.35, roughness: 0.95 });
+    lot.add(MI.noyer, box(4.6, 2.35, 0.07, 0.02), T(0, 2.35, N + 0.08));
+    lot.add(mVoix, new THREE.BoxGeometry(4.3, 2.05, 0.02), T(0, 2.35, N + 0.12));
+    { const L2 = lettrageNet('Cours de chant', 0.38); L2.position.set(0, 3.72, N + 0.14); I.groupe.add(L2); }
+    { const velours = new THREE.MeshStandardMaterial({ color: 0x6e2438, roughness: 0.92, side: THREE.DoubleSide });
+      lot.add(velours, new THREE.BoxGeometry(0.62, 2.7, 0.05), T(-2.7, 1.75, N + 0.16)); lot.add(velours, new THREE.BoxGeometry(0.62, 2.7, 0.05), T(2.7, 1.75, N + 0.16)); }
+    const pied = fairePied({ type: 'condensateur', perche: true, haut: 1.28 }); pied.position.set(0.15, 0, -1.35); pied.rotation.y = 0.4; I.groupe.add(pied); rondI(I, 0.15, -1.35, 0.28);
+    const pied2 = fairePied({ type: 'dynamique', perche: false, haut: 1.22 }); pied2.position.set(2.35, 0, -1.15); pied2.rotation.y = -0.5; I.groupe.add(pied2); rondI(I, 2.35, -1.15, 0.24);
+    const sono = faireSono(); sono.scale.setScalar(1.25); sono.position.set(3.15, 0, -2.15); sono.rotation.y = -0.8; I.groupe.add(sono); rondI(I, 3.15, -2.15, 0.38);
+    const pedale = fairePedale(); pedale.position.set(3.35, 0, -1.85); pedale.rotation.y = 0.4; I.groupe.add(pedale);
+    { const a = dans(lot, T(-3.7, 0, -1.05, 0.5)); a(MI.noyer, box(1.35, 0.08, 0.62, 0.02), 0, 0.74, 0); a(MI.chene, box(1.4, 0.04, 0.66, 0.015), 0, 0.79, 0);
+      for (const sx of [-1, 1]) for (const sz of [-1, 1]) a(MI.ebene, cyl(0.03, 0.025, 0.74, 8), sx * 0.55, 0.37, sz * 0.22); boiteI(I, -4.5, -2.9, -1.55, -0.55); }
+    const intras = faireIntras(); intras.position.set(-3.95, 0.82, -1.15); intras.rotation.y = 0.4; I.groupe.add(intras);
+    const microTable = fairePied({ type: 'sansfil', perche: false, haut: 0.14 }); microTable.position.set(-3.55, 0.8, -1.05); I.groupe.add(microTable);
+    intras.scale.setScalar(1.8);
+    tapisRect(lot, 0.2, -0.15, 4.2, 3.4);
+    for (const x of [-1.15, 0.15, 1.45]) { chaise(lot, x, 1.35, Math.PI); rondI(I, x, 1.35, 0.28); }
+    lutrin(lot, 0.1, -0.15, 0.15); rondI(I, 0.1, -0.15, 0.16);
+    { const tParoles = toile(512, 320, (g, L, H) => { g.fillStyle = '#f3efe6'; g.fillRect(0, 0, L, H); g.fillStyle = '#2a2118'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = 'italic 34px Georgia, serif'; g.fillText('ma  mé  mi  mo  mu', L / 2, 110); g.font = 'italic 26px Georgia, serif'; g.fillText('Le souffle porte la phrase.', L / 2, 190); });
+      const feuille = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.22), new THREE.MeshStandardMaterial({ map: tParoles, roughness: 0.85 }));
+      feuille.position.set(0.1, 1.28, -0.12); feuille.rotation.x = -0.55; I.groupe.add(feuille); }
+    { const mMiroir = new THREE.MeshStandardMaterial({ color: 0xc9d3de, roughness: 0.06, metalness: 0.82 });
+      lot.add(MI.noyer, box(0.08, 2.15, 1.55, 0.02), T(O + 0.1, 1.7, -0.4, Math.PI / 2));
+      const miroir = new THREE.Mesh(new THREE.PlaneGeometry(1.35, 1.9), mMiroir); miroir.position.set(O + 0.16, 1.7, -0.4); miroir.rotation.y = Math.PI / 2; I.groupe.add(miroir); }
+    for (const z of [-1.6, 2.2]) { fenetre(lot, T(O + 0.02, 2.5, z, Math.PI / 2), 1.5, 2.1, MI.vitre, { traverse: 0.62 }); fenetre(lot, T(E - 0.02, 2.5, z, -Math.PI / 2), 1.5, 2.1, MI.vitre, { traverse: 0.62 }); }
+    for (const z of [-2.4, 1.2]) { applique(I, lot, T(O + 0.06, 2.45, z, Math.PI / 2)); applique(I, lot, T(E - 0.06, 2.45, z, -Math.PI / 2)); }
+    applique(I, lot, T(-2.2, 2.7, N + 0.06)); applique(I, lot, T(2.2, 2.7, N + 0.06));
+    for (const [x, z] of [[-3.2, 0.2], [3.2, 0.2]]) suspension(I, lot, x, 3.45, z, h, 0.8);
+    porteSortie(lot, T(0, 0, S - 0.04, Math.PI), 'Guitare');
+    for (const [x, y, z, f] of [[-3.2, 3.2, 0.2, 12], [3.2, 3.2, 0.2, 12], [0, 3.3, -2.6, 14], [0, 3.4, 2.2, 12]]) lueurI(I, x, y, z, 0xffc98a, f, 11);
+    lot.finir(I.groupe);
+    pointI(I, 'tableau-chant', 0, N + 1.7, 1.6, 'Voir · le cours de chant', () => ouvrirLieu('cours-chant'));
+    pointI(I, 'sortie', 0, S - 0.7, 1.4, 'Retour · cours de guitare', sortir);
   }
   tic('avant biblio');
   { const I = INT.biblio, lot = new Lot(), { l, p, h } = I, N = -p / 2, S = p / 2, O = -l / 2, E = l / 2, r = alea(88), HR = 4.75, NL = MI.livres.length;
@@ -767,7 +830,8 @@ function faireInterieurs() {
       if (c < 0) lutrinBois(lot, T(x, 0.45, N - 0.85)); else guitareSurPied(I, lot, x, N - 0.9, 0, 'acoustique', 0xd0924e, 0.45);
       relief(lot, nom, 0.36, x, 4.58, N + 0.06);
       projecteur(I, x, 3.95, N - 0.15, x, 1.25, N - 0.9, 0xffc98a, 46, 0.6, 0.85, 7);
-      if (PUBLIC) { pointI(I, cle, x, N + 1.5, 2.2, nom + ' · Bientôt', () => {}); I.points[I.points.length - 1].muet = true; }
+      pointI(I, cle, x, N + 1.5, 2.2, PUBLIC ? nom + ' · Bientôt' : 'Voir · ' + nom, PUBLIC ? () => {} : () => ouvrirLieu(cle));
+      if (PUBLIC) I.points[I.points.length - 1].muet = true;
       I.points[I.points.length - 1].cadre = CADRE_ARCHE; }
     { const tR = toile(512, 512, (g, S0) => { const c = S0 / 2; for (const [ray, col] of [[1, '#7a2a1e'], [0.93, '#cdb9a8'], [0.9, '#1e3a6e'], [0.74, '#c9a961'], [0.72, '#7a2a1e'], [0.36, '#c9a961'], [0.34, '#1e3a6e']]) { g.fillStyle = col; g.beginPath(); g.arc(c, c, c * ray, 0, 7); g.fill(); }
         g.fillStyle = '#c9a961'; for (let i = 0; i < 16; i++) { const an = i / 16 * 6.283; g.beginPath(); g.arc(c + Math.cos(an) * c * 0.54, c + Math.sin(an) * c * 0.54, 8, 0, 7); g.fill(); }
@@ -902,7 +966,15 @@ function faireInterieurs() {
     { const a = dans(lot, T(-6.2, 0, 3.9, 0.0)); a(MI.noyer, box(3.0, 1.0, 0.8, 0.03), 0, 0.5, 0); a(MI.chene, box(3.14, 0.06, 0.94, 0.02), 0, 1.03, 0); a(MI.ebene, box(3.0, 0.12, 0.82, 0.01), 0, 0.06, 0);
       for (const x of [-0.98, 0, 0.98]) a(mLatteS, box(0.9, 0.7, 0.02, 0.01), x, 0.52, -0.405);
       a(M.laiton, cyl(0.07, 0.09, 0.03, 16), 1.05, 1.075, 0.1); a(M.laiton, cyl(0.012, 0.012, 0.34, 8), 1.05, 1.24, 0.1); a(MI.abat, new THREE.CylinderGeometry(0.1, 0.18, 0.2, 18, 1, true), 1.05, 1.46, 0.1); haloI(I, -6.2 + 1.05, 1.46, 3.9 + 0.1, 1.3, 0.25);
-      a(MI.feutre, box(0.7, 0.012, 0.45, 0.004), -0.5, 1.066, 0.0); boiteI(I, -7.72, -4.68, 3.48, 4.32); lueurI(I, -5.2, 2.2, 3.6, 0xffc98a, 4, 4.5); }
+      a(MI.feutre, box(0.7, 0.012, 0.45, 0.004), -0.5, 1.066, 0.0); boiteI(I, -7.72, -4.68, 3.48, 4.32); lueurI(I, -5.2, 2.2, 3.6, 0xffc98a, 4, 4.5);
+      const surComptoir = (obj, x, y, z, ry = 0, rz = 0) => { obj.position.set(-6.2 + x, y, 3.9 + z); obj.rotation.set(0, ry, rz); I.groupe.add(obj); };
+      surComptoir(fairePied({ type: 'dynamique', perche: false, haut: 0.16 }), -0.85, 1.07, -0.02);
+      surComptoir(faireMicro('sansfil'), -0.15, 1.1, 0.04, 0.5, Math.PI / 2);
+      surComptoir(faireIntras(), 0.38, 1.09, -0.04, 0.2);
+      surComptoir(fairePedale(), 0.78, 1.09, 0.1, -0.35);
+      { const enseigne = lettrageNet('Chant', 0.18); enseigne.position.set(-6.2, 1.72, 3.36); enseigne.rotation.y = Math.PI; I.groupe.add(enseigne); } }
+    { const piedV = fairePied({ type: 'condensateur', perche: true, haut: 1.22 }); piedV.position.set(-4.35, 0, 2.95); piedV.rotation.y = 1.1; I.groupe.add(piedV); rondI(I, -4.35, 2.95, 0.26);
+      const sonoV = faireSono(); sonoV.position.set(-3.85, 0, 4.85); sonoV.rotation.y = 2.6; I.groupe.add(sonoV); rondI(I, -3.85, 4.85, 0.34); }
     ampli(I, lot, -7.9, -5.1, 0.55, 0.74, 0.64, 0.34); ampli(I, lot, -6.7, -5.35, 0.2, 0.5, 0.44, 0.28); ampli(I, lot, 6.2, -5.4, -0.25, 0.66, 0.58, 0.32);
     if (SANS_KITS) { I.kits = []; I.majKits = () => {}; I.construireKits = () => {}; RACCOURCIS.magasin = RACCOURCIS.magasin.filter(([n]) => n !== 'Kits'); }
     else { const KV = KITS.filter((k) => !k.cache), n = KV.length, pasK = 0.6, cx = 5.0, larg = n * pasK + 0.3, base = T(cx, 0, S - 0.04, Math.PI), a = dans(lot, base), yT = 1.75;
@@ -942,6 +1014,7 @@ function faireInterieurs() {
     }
     lot.finir(I.groupe);
     pointI(I, 'sortie', 0, S - 0.7, 1.5, 'Sortir · retour au village', sortir);
+    pointI(I, 'coin-chant', -4.9, 3.15, 1.45, 'Voir · le matériel de chant', () => ouvrirLieu('materiel-chant'));
     const dessinerPlaque = (P) => { const c = P.tex.image, g = c.getContext('2d'), porte = portee.id === P.G.id; g.clearRect(0, 0, 512, 112);
       g.fillStyle = porte ? '#2a1a0c' : '#0f0b08'; g.fillRect(0, 0, 512, 112); g.strokeStyle = porte ? '#ffb454' : '#c9a961'; g.lineWidth = porte ? 6 : 4; g.strokeRect(5, 5, 502, 102);
       g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#f3ede2'; g.font = `600 ${porte ? 46 : 58}px ${PT}`; g.fillText(P.G.modele, 256, porte ? 40 : 58, 474);
@@ -1176,6 +1249,7 @@ function majFinis() {
   const regler = () => { $('#guitare').classList.toggle('ferme', !ouvert); $('#ouvrir-guitare').classList.toggle('visible', !ouvert); $('#ouvrir-guitare').setAttribute('aria-expanded', ouvert); };
   $('#ouvrir-guitare').onclick = () => { ouvert = true; regler(); }; $('#replier-guitare').onclick = () => { ouvert = false; regler(); }; regler(); window.__village.replierGuitare = () => { if (ouvert) { ouvert = false; regler(); } }; }
 const joueur = new THREE.Group(); joueur.position.set(DEPART[0], 0, DEPART[1]); joueur.rotation.y = Math.PI; scene.add(joueur);
+let chanteurs = [];
 let melangeur, actions = {}, actuelle = null, ramasse = 0;
 { const t = toile(128, 128, (g, S) => { const d = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2); d.addColorStop(0, 'rgba(0,0,0,.62)'); d.addColorStop(0.55, 'rgba(0,0,0,.26)'); d.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = d; g.fillRect(0, 0, S, S); });
   const o = new THREE.Mesh(new THREE.PlaneGeometry(1.25, 1.25), new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, opacity: 0.7, polygonOffset: true, polygonOffsetFactor: -6 }));
@@ -1214,7 +1288,8 @@ document.querySelectorAll('#avatars .choix').forEach((b) => b.onclick = async ()
 async function chargerBonhomme() {
   await Promise.all((PUBLIC ? ['casual'] : Object.keys(AVATARS)).map(preparerAvatar));
   mettreAvatar('casual');
-  dos.position.set(0.02, HAUTEUR * 0.63, -0.14); dos.rotation.set(0.11, 0, 0); dos.scale.setScalar(1.3); dosIn.rotation.set(0, Math.PI, -0.6); joueur.add(harnais); faireCourroie(); faireOmbreDos(); poserGuitare(); if (!SANS_KITS) { const k = lireMem(MEM_KIT); if (k && KITS.some((K) => K.id === k)) mettreKit(k, { guitare: false, muet: true }); } else $('#ou-guitare').textContent = 'Guitares : au magasin de musique.';
+  dos.position.set(0.02, HAUTEUR * 0.63, -0.14); dos.rotation.set(0.11, 0, 0); dos.scale.setScalar(1.3); dosIn.rotation.set(0, Math.PI, -0.6); joueur.add(harnais); faireCourroie(); faireOmbreDos(); poserGuitare(); if (!SANS_KITS) { const k = lireMem(MEM_KIT); if (k && KITS.some((K) => K.id === k)) mettreKit(k, { guitare: false, muet: true }); } else $('#ou-guitare').textContent = 'Guitares et matériel de chant : au magasin de musique.';
+  chanteurs = faireChanteurs(AVATARS.casual); for (const c of chanteurs) scene.add(c.groupe);
 }
 const MEM_KIT = 'village-musique.kit', OS_KITS = ['Head', 'Neck', 'Chest', 'Torso', 'Hips', 'UpperArmL', 'LowerArmL', 'WristL', 'UpperArmR', 'LowerArmR', 'WristR', 'UpperLegL', 'LowerLegL', 'UpperLegR', 'LowerLegR', 'FootL', 'FootR'];
 let kit = null;
@@ -1295,8 +1370,8 @@ function ouvrirLieu(k) {
   const L = PANNEAUX[k] || LIEUX[k]; if (!L || L.terrain) return;
   $('#fermer-lieu').textContent = dedans ? 'Fermer' : 'Retour au village';
   $('#lieu-sur').textContent = L.sur; $('#lieu-titre').textContent = L.nom; $('#lieu-texte').textContent = L.texte;
-  const etat = (b) => (PUBLIC && (b === 'essai' || b === 'à venir') ? 'Bientôt' : b);
-  $('#lieu-liste').innerHTML = L.liste.map(([a, b, c]) => `<li${c ? ` class="${c}"` : ''}><span>${esc(a)}</span><span>${esc(etat(b) || '')}</span></li>`).join('');
+  const etat = (b, cours) => { const s = cours && !coursOuvert(cours) ? 'à venir' : b; return (PUBLIC && (s === 'essai' || s === 'à venir') ? 'Bientôt' : s); };
+  $('#lieu-liste').innerHTML = L.liste.map(([a, b, c, cours]) => `<li${c ? ` class="${c}"` : ''}><span>${esc(a)}</span><span>${esc(etat(b, cours) || '')}</span></li>`).join('');
   $('#lieu-pied').textContent = L.pied || '';
   $('#lieu').classList.add('ouvert'); lieuOuvert = true; touches.clear(); $('#lieu article').scrollTop = 0; setTimeout(() => $('#fermer-lieu').focus({ preventScroll: true }), 80);
 }
@@ -1318,10 +1393,10 @@ const DEMI = R + 5, versCarte = (x, z) => [(x + DEMI) / (2 * DEMI) * 432, (z + D
 function photoDuHaut() {
   const cam = new THREE.OrthographicCamera(-DEMI, DEMI, DEMI, -DEMI, 1, 500); cam.position.set(0, 250, 0); cam.up.set(0, 0, -1); cam.lookAt(0, 0, 0);
   const brume = scene.fog, expo = renderer.toneMappingExposure, pr = renderer.getPixelRatio();
-  scene.fog = null; joueur.visible = false; for (const m of MEDIATORS) m.groupe.visible = false; etoiles.visible = false; arbres.visible = false; ciel.visible = false; renderer.toneMappingExposure = 3.0;
+  scene.fog = null; joueur.visible = false; for (const m of MEDIATORS) m.groupe.visible = false; for (const c of chanteurs) c.groupe.visible = false; etoiles.visible = false; arbres.visible = false; ciel.visible = false; renderer.toneMappingExposure = 3.0;
   renderer.setPixelRatio(1); renderer.setSize(432, 432, false); renderer.render(scene, cam);
   fondCarte.getContext('2d').drawImage(renderer.domElement, 0, 0, 432, 432);
-  scene.fog = brume; joueur.visible = true; for (const m of MEDIATORS) m.groupe.visible = true; etoiles.visible = true; arbres.visible = true; ciel.visible = true; renderer.toneMappingExposure = expo;
+  scene.fog = brume; joueur.visible = true; for (const m of MEDIATORS) m.groupe.visible = true; for (const c of chanteurs) c.groupe.visible = true; etoiles.visible = true; arbres.visible = true; ciel.visible = true; renderer.toneMappingExposure = expo;
   { const g = fondCarte.getContext('2d'); g.fillStyle = 'rgba(4,8,18,.34)'; g.fillRect(0, 0, 432, 432); }
   renderer.setPixelRatio(pr); taille();
 }
@@ -1450,7 +1525,7 @@ function logique(dt) {
   } else if (ramasse <= 0) jouer('idle');
   joueur.position.y += (hauteurSol(joueur.position.x, joueur.position.z) - joueur.position.y) * Math.min(1, dt * 14);
   if (melangeur) melangeur.update(dt);
-  suivreTorse(); majMurProche();
+  animerChanteurs(chanteurs, dt); suivreTorse(); majMurProche();
   if (dedans && INT[dedans].pano) { const I = INT[dedans]; if (force > 0.12 || glisse) I.pano = null; else { I.pano.t += dt; lacet = lacetVise = PANO(I.pano.t); if (I.pano.t >= PANO_DUREE) { I.pano = null; lacet = lacetVise = 0; } } }
   if (dedans) { const I = INT[dedans]; if (I.mixers) for (const m of I.mixers) m.update(dt); if (I.respire) for (const f of I.respire) f(t); }
   if (!dedans) MEDIATORS.forEach((m, i) => { if (m.trouve) return;
@@ -1595,7 +1670,7 @@ function descendre(dt) {
   }
   if (!DESC.active) return;
   poseDescente(DESC.figee ?? DESC.t);
-  if (DESC.pret) { if (melangeur) melangeur.update(dt); suivreTorse(); }
+  if (DESC.pret) { if (melangeur) melangeur.update(dt); animerChanteurs(chanteurs, dt); suivreTorse(); }
   if (DESC.figee == null && DESC.t >= 1 && !DESC.voile) finirDescente(false);
 }
 function finirDescente(viaVoile) {
@@ -1648,6 +1723,8 @@ async function rechauffer() {
   tic('prêt'); if (leger.etat().verdict) setTimeout(rechauffer, 1500);
 })().catch((e) => { $('#chargement p').textContent = 'Le village n’a pas pu charger.'; $('#chargement').classList.remove('fini'); document.body.classList.remove('descente'); console.error(e); });
 Object.assign(window.__village, { ouvrirLieu, fermerLieu, PORTES, OUTILS, POSTES_STUDIO, AVATARS, KITS, mettreKit, oterKit, GUITARES, MEDIATORS, harnais, mettreAvatar, prendreGuitare, choisirFini, boites, ronds, allerDansSalle, joueur, LIEUX, INT, Y0, allerA, entrer, sortir, passer, PUBLIC, bloom, tousHalos, camera, dos, R, scene, chapeau, renderer, composer, lune, eclat, contre, leger, lampesDehors,
+  FICHES_ELEVES, definirEleveActif, coursOuvert,
   viser: (l) => { lacet = lacetVise = l; },
   majCarteRepliee, descente: { etat: () => ({ active: DESC.active, t: DESC.t, pret: DESC.pret, figee: DESC.figee, sauter: DESC.sauter, near: camera.near, far: camera.far, fov: camera.fov, cam: camera.position.toArray(), corps: document.body.classList.contains('descente') }), figer: (t) => { DESC.figee = t; }, lacher: () => { DESC.figee = null; }, placer: (t) => { DESC.t = t; }, sauter: sauterDescente }, simuler: (secondes) => { for (let i = 0; i < secondes * 60; i++) logique(1 / 60); reglerCamera(1, true); camera.updateMatrixWorld(); effacerCeQuiCache(1); },
   etat: () => ({ kit, x: joueur.position.x, y: joueur.position.y, z: joueur.position.z, anim: actuelle, proche: procheDe, mediatorTrouve: nbMediators() > 0, mediators: nbMediators(), lieuOuvert, portee: { ...portee }, guitare: dosIn.children[0] ? { ...dosIn.children[0].userData } : null, lisere: !!(dosIn.children[0] && dosIn.children[0].children.some((o) => o.material === matLisere)), finisVisibles: $('#finis').classList.contains('visible'), avatar, serre, dedans, enTransit, invite: invite ? invite.texte : null, titrePanneau: $('#lieu-titre').textContent }) });
+Object.defineProperty(window.__village, 'chanteurs', { get: () => chanteurs });
