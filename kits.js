@@ -393,4 +393,24 @@ export const KITS = [
       H.cone(plat, 0.03, 0.09, 0, 1.83, 0.12, -0.9, 0, 0, 5);
       for (const [os, sg] of [['LowerArmL', 1], ['LowerArmR', -1]]) { S(os).tore(M(0x0c0c0e), 0.037, 0.009, sg * 0.52, 1.415, 0.0, 0, PI / 2, 0); S(os).tore(arg, 0.039, 0.003, sg * 0.5, 1.415, 0.0, 0, PI / 2, 0); }
     } },
+  { id: 'slim', nom: 'Slim Amour', micro: 'slim', chant: true, peau: 0xb98258,
+    matiere: matieres({ peau: 0xb98258, barbe: 0xb98258, semelle: 0x111112 }),
+    peindre(Z) { const peau = css(this.peau), noir = '#0d0d10', arg = '#d4d8e0';
+      const grille = (g, x0, x1, y0, y1, pas) => { for (let y = y0; y <= y1; y += pas) trait(g, 'rgba(200,205,215,.55)', 0.004, [[x0, y], [x1, y]]); for (let x = x0; x <= x1; x += pas) trait(g, 'rgba(200,205,215,.55)', 0.004, [[x, y0], [x, y1]]);
+        for (let y = y0; y <= y1; y += pas) for (let x = x0; x <= x1; x += pas) rond(g, arg, x, y, 0.0075); };
+      Z.haut((g, dos) => { plein(g, noir);
+        if (!dos) { poly(g, '#16161a', [[-0.19, 1.56], [0.19, 1.56], [0.17, 1.2], [0.1, 1.1], [-0.1, 1.1], [-0.17, 1.2]]); grille(g, -0.17, 0.17, 1.18, 1.54, 0.03); poly(g, peau, [[-0.06, 1.56], [0.06, 1.56], [0, 1.5]]); }
+        else grille(g, -0.19, 0.19, 1.4, 1.54, 0.03); });
+      Z.bras((g) => { plein(g, noir); symetrie((s) => { for (let y = 1.36; y <= 1.5; y += 0.03) for (let x = 0.12; x <= 0.3; x += 0.03) rond(g, arg, s * x, y, 0.0075); }); symetrie((s) => rect(g, peau, s > 0 ? 0.56 : -0.6, 0.8, 0.04, 1)); });
+      Z.bas((g, dos) => { plein(g, '#111114'); symetrie((s) => trait(g, 'rgba(255,255,255,.1)', 0.012, [[s * 0.1, 0.95], [s * 0.1, 0.16]])); ceinture(g, '#0a0a0c', null); souliers(g, '#0c0c0e', { haut: 0.11 }); });
+    },
+    pieces(S, M) { const H = S('Head'), noir = M(0x16100e, { roughness: 0.7 }), barbe = M(0x20150f, { roughness: 1 });
+      H.boule(noir, 0.112, 0, 1.745, CZ - 0.035, 1.02, 0.8, 1.1, 2);
+      for (const s of [-1, 1]) H.boule(noir, 0.05, s * 0.104, 1.7, CZ - 0.02, 0.6, 1.4, 1.3);
+      H.boule(noir, 0.06, 0, 1.64, -0.1, 1.1, 1.2, 1);
+      for (let k = 0; k < 6; k++) H.boule(k % 2 ? noir : barbe, 0.04 - k * 0.003, 0.025 * Math.sin(k * 1.7), 1.58 - k * 0.07, -0.115 - 0.004 * k, 0.9, 1.5, 0.9);
+      H.boule(barbe, 0.05, 0, 1.6, 0.145, 1.5, 0.65, 0.8); H.boule(barbe, 0.065, 0, 1.55, 0.13, 1.3, 0.9, 0.9);
+      for (const s of [-1, 1]) { H.boule(barbe, 0.048, s * 0.075, 1.6, 0.1, 0.9, 1.3, 1); H.boule(barbe, 0.04, s * 0.098, 1.66, 0.07, 0.6, 1.2, 0.9); }
+      S('LowerArmR').tore(argent(), 0.02, 0.005, -0.54, 1.415, 0.0, 0, PI / 2, 0);
+    } },
 ];

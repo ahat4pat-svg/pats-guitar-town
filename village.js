@@ -511,6 +511,7 @@ const MICROS_CHANT = [
   { id: 'bruno', nom: 'Bruno March', sous: 'tout en or', couleur: '#e8b84a' },
   { id: 'weekend', nom: 'Weekend Rouge', sous: 'rouge et noir', couleur: '#ff4a4a' },
   { id: 'pinky', nom: 'Pinky Punk', sous: 'rose vif · tête argentée', couleur: '#ff4fa0' },
+  { id: 'slim', nom: 'Slim Amour', sous: 'noir · sans fil', couleur: '#c9ccd6' },
 ];
 function faireMicroChant(type) {
   const g = new THREE.Group(), L = new Lot(), tourne = (pts, n = 24) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), n);
@@ -531,6 +532,9 @@ function faireMicroChant(type) {
   } else if (type === 'bruno') {
     const or = brillant(0xe0b040, { metalness: 1, roughness: 0.22, emissive: 0x5a3c08, emissiveIntensity: 0.35 }), orMaille = new THREE.MeshStandardMaterial({ map: texGrille('#b88a26', '#6a4a10', 8), roughness: 0.3, metalness: 0.95, emissive: 0x5a3c08, emissiveIntensity: 0.3 }); orMaille.map.repeat.set(5, 3);
     L.add(or, tourne(corps), T(0, 0, 0)); L.add(orMaille, new THREE.SphereGeometry(0.037, 24, 18), T(0, 0.19, 0)); L.add(new THREE.MeshStandardMaterial({ color: 0x15110c, roughness: 0.4, metalness: 0.4 }), new THREE.CylinderGeometry(0.0262, 0.0262, 0.012, 22), T(0, 0.153, 0)); L.add(new THREE.MeshStandardMaterial({ color: 0x15110c, roughness: 0.4 }), new THREE.CylinderGeometry(0.0176, 0.0176, 0.008, 20), T(0, 0.07, 0));
+  } else if (type === 'slim') {
+    const noir = new THREE.MeshStandardMaterial({ color: 0x0e0e11, roughness: 0.45, metalness: 0.4 }), maille = new THREE.MeshStandardMaterial({ map: texGrille('#0a0a0c', '#2a2a30', 8), roughness: 0.5, metalness: 0.6 }); maille.map.repeat.set(5, 3);
+    L.add(noir, tourne(corps), T(0, 0, 0)); L.add(maille, new THREE.SphereGeometry(0.037, 24, 18), T(0, 0.19, 0)); L.add(new THREE.MeshStandardMaterial({ color: 0x1a1a1e, roughness: 0.4, metalness: 0.5 }), new THREE.CylinderGeometry(0.0262, 0.0262, 0.01, 22), T(0, 0.153, 0));
   } else if (type === 'pinky') {
     const rose = new THREE.MeshStandardMaterial({ color: 0xe8338a, roughness: 0.3, metalness: 0.5, emissive: 0x6a0f3a, emissiveIntensity: 0.4 }), maille = new THREE.MeshStandardMaterial({ map: texGrille('#d8dbe2', '#6a707c', 8), roughness: 0.25, metalness: 0.95 }); maille.map.repeat.set(5, 3);
     L.add(rose, tourne(corps), T(0, 0, 0)); L.add(maille, new THREE.SphereGeometry(0.038, 24, 18), T(0, 0.19, 0)); L.add(new THREE.MeshStandardMaterial({ color: 0x0c0c0e, roughness: 0.4, metalness: 0.5 }), new THREE.CylinderGeometry(0.0262, 0.0262, 0.012, 22), T(0, 0.153, 0));
@@ -542,9 +546,9 @@ function faireMicroChant(type) {
   }
   L.finir(g); habiller(g, false); return g;
 }
-const MAIN = { type: null, groupe: null, x: -0.66, y: 1.425, z: 0.02, bras: [0.3, -0.5, -1.6, 0.0, 0.0] };
+const MAIN = { type: null, groupe: null, x: -0.66, y: 1.425, z: 0.02, glisse: 0, avant: 0.45, bras: [0.3, -0.5, -1.6, 0.0, 0.0], assis: [0, 0, -0.5, 0, 0] };
 function faireMicroMain(type) {
-  const w = new THREE.Group(), m = type === 'boule' ? faireMicro('boule') : faireMicroChant(type); m.rotation.z = Math.PI / 2; m.position.set(MAIN.x, MAIN.y, MAIN.z); w.add(m);
+  const w = new THREE.Group(), m = type === 'boule' ? faireMicro('boule') : faireMicroChant(type), piv = new THREE.Group(); m.rotation.z = Math.PI / 2; m.position.set(MAIN.glisse, 0, 0); piv.position.set(MAIN.x, MAIN.y, MAIN.z); piv.rotation.y = MAIN.avant; piv.add(m); w.add(piv);
   w.traverse((o) => { if (o.isMesh) { o.userData.kit = true; o.frustumCulled = false; o.castShadow = true; } }); return w;
 }
 function tenirMicro(type) {
@@ -583,7 +587,7 @@ function seLever() {
 function appliquerPoseV20() {
   const A = AVATARS[avatar]; if (!A || !A.modele || !A.bind) return;
   if (assis) poserJambesAssis(A.modele, A.bind);
-  if (MAIN.groupe && avatar === 'casual') poserBrasMicro(A.modele, A.bind);
+  if (MAIN.groupe && avatar === 'casual' && assis) { const Lw = A.modele.getObjectByName('LowerArmR'); if (Lw) { A.modele.updateWorldMatrix(true, true); A.modele.getWorldQuaternion(_axM); tournerOs(Lw, AX.x.clone().applyQuaternion(_axM), MAIN.assis[2]); } }
 }
 function faireChanteurKit(K, t0 = 0.5) {
   const A = AVATARS.casual, m = SkeletonUtils.clone(A.modele), wrap = new THREE.Group(), clip = A.clips.find((c) => c.name.endsWith('|Idle_Neutral')) || A.clips[0];
@@ -596,7 +600,7 @@ function faireChanteurKit(K, t0 = 0.5) {
   for (const [os, meshes] of Object.entries(piecesKit(K))) { const g = groupes[os]; if (!g) continue; for (const o of meshes) { o.frustumCulled = false; o.castShadow = true; g.add(o); } }
   if (K.micro && groupes.WristR) groupes.WristR.add(faireMicroMain(K.micro));
   wrap.add(m); wrap.updateMatrixWorld(true);
-  if (K.micro) poserBrasMicro(m, A.bind); m.updateMatrixWorld(true); wrap.userData.kit = K.id; return wrap;
+  m.updateMatrixWorld(true); wrap.userData.kit = K.id; return wrap;
 }
 const HAUTS19 = [0xb5532a, 0x2f7f78, 0xd9941e, 0x7d9a3a, 0x7a5aa8, 0xb8433f, 0x3d6fb3, 0xe0b8a0, 0x2e8b57, 0xd45d8a];
 const BAS19 = [0x1c2233, 0x3a2f28, 0x25272d, 0x4a4f3a, 0x2a3f6a];
@@ -1396,7 +1400,7 @@ function faireInterieurs() {
   { const I = INT.annexe, lot = new Lot(), { l, p, h } = I, N = -p / 2, S = p / 2, O = -l / 2, E = l / 2;
     const mMur = std(0x3a2233, 0.92, { map: texPlatre }); mMur.userData.sansProjeter = true;
     const mTissu = (c) => std(c, 0.96, { emissive: c, emissiveIntensity: 0.1 });
-    const SING = [-5.25, -3.15, -1.05, 1.05, 3.15, 5.25], TEINTES = [0x2f6a1a, 0xc0508a, 0x2a3f8a, 0xa8721a, 0x8a1f26, 0x7a2a6a], ECLAIRS = [0xe8ffc8, 0xffd0e8, 0xd0dcff, 0xffd28a, 0xffa89a, 0xffc0ec];
+    const SING = [-5.85, -3.9, -1.95, 0, 1.95, 3.9, 5.85], TEINTES = [0x2f6a1a, 0xc0508a, 0x2a3f8a, 0xa8721a, 0x8a1f26, 0x7a2a6a, 0x4a4a58], ECLAIRS = [0xe8ffc8, 0xffd0e8, 0xd0dcff, 0xffd28a, 0xffa89a, 0xffc0ec, 0xdde2f0];
     coque(lot, I, mMur, { sol: MI.parquetB });
     for (const [w, x, z, ry] of [[l, 0, N + 0.03, 0], [l, 0, S - 0.03, 0], [p, O + 0.03, 0, Math.PI / 2], [p, E - 0.03, 0, Math.PI / 2]]) lot.add(MI.ebene, box(w, 0.14, 0.08, 0.01), T(x, 0.07, z, ry));
     for (const x of [-4.6, 4.6]) lot.add(MI.poutre, new THREE.BoxGeometry(0.28, 0.3, p), T(x, h - 0.15, 0));
