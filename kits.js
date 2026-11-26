@@ -256,20 +256,141 @@ export const KITS = [
       S('WristL').cyl(verre, 0.0135, 0.0135, 0.062, 0.765, 1.412, 0.1, 0, 0, PI / 2, 10); S('WristL').cyl(verre, 0.009, 0.0135, 0.012, 0.802, 1.412, 0.1, 0, 0, -PI / 2, 10);
     } },
   { id: 'pat', nom: 'Pat', guitare: ['voodoo', 'Orange'], peau: 0xe9c09a,
-    matiere: matieres({ peau: 0xe9c09a, cheveux: null, semelle: 0x121212 }),
-    peindre(Z) { const peau = css(this.peau), bleu = '#2f62b0', ombre = '#234a88';
-      Z.haut((g, dos) => { plein(g, bleu); symetrie((s) => trait(g, 'rgba(255,255,255,.07)', 0.02, [[s * 0.2, 1.48], [s * 0.19, 1.05]]));
-        if (!dos) { rect(g, ombre, -0.014, 1.0, 0.028, 0.5); for (let y = 1.05; y < 1.48; y += 0.07) rond(g, '#e9e6de', 0, y, 0.006); col(g, bleu, ombre); poly(g, peau, [[-0.035, 1.56], [0.035, 1.56], [0, 1.455]]); rect(g, ombre, 0.085, 1.31, 0.085, 0.006); rect(g, ombre, 0.085, 1.31, 0.006, 0.08); rect(g, ombre, 0.164, 1.31, 0.006, 0.08); }
-        else trait(g, ombre, 0.006, [[-0.2, 1.45], [0, 1.43], [0.2, 1.45]]); });
-      Z.bras((g) => manches(g, peau, bleu, 0.555, ombre));
-      Z.bas((g, dos) => { plein(g, '#1a1a1f'); symetrie((s) => trait(g, 'rgba(255,255,255,.06)', 0.006, [[s * 0.172, 0.95], [s * 0.172, 0.14]]));
-        if (!dos) { const zip = (x0, y0, x1, y1) => { trait(g, '#d5d8de', 0.012, [[x0, y0], [x1, y1]]); trait(g, '#4a4c52', 0.003, [[x0, y0], [x1, y1]]); rond(g, '#eef0f3', x1, y1, 0.009); };
-          zip(0.075, 0.84, 0.165, 0.76); zip(-0.165, 0.84, -0.075, 0.76); zip(0.08, 0.36, 0.16, 0.31);
-          for (const [x, y, w] of [[-0.119, 0.55, 0.07], [-0.115, 0.515, 0.055], [0.119, 0.62, 0.06], [-0.12, 0.33, 0.05]]) { poly(g, peau, [[x - w / 2, y], [x, y + 0.012], [x + w / 2, y], [x, y - 0.012]]); for (let k = -2; k <= 2; k++) trait(g, '#8a8c92', 0.002, [[x + k * w / 6, y - 0.014], [x + k * w / 6, y + 0.014]]); } }
-        ceinture(g, '#0e0e0f', null); if (!dos) rect(g, '#b9bcc2', -0.02, 0.962, 0.04, 0.036); souliers(g, '#0f0f10', { haut: 0.15 }); });
+    matiere: matieres({ peau: 0xe9c09a, cheveux: 0x2b1e16, sourcils: 0x2b1e16, semelle: 0xf4f1ea }),
+    peindre(Z) { const peau = css(this.peau), blanc = '#f1efe9', pli = '#d6d2c8', noir = '#141416', reflet = '#2a2a30';
+      Z.haut((g, dos) => { plein(g, blanc); symetrie((s) => trait(g, pli, 0.01, [[s * 0.21, 1.4], [s * 0.23, 1.1]]));
+        if (!dos) {
+          symetrie((s) => poly(g, noir, [[s * 0.07, 1.545], [s * 0.15, 1.53], [s * 0.165, 1.42], [s * 0.215, 1.33], [s * 1.0, 1.3], [s * 1.0, 0.8], [s * 0.04, 0.8], [s * 0.012, 0.93], [s * 0.012, 1.22]]));
+          symetrie((s) => { trait(g, reflet, 0.005, [[s * 0.07, 1.545], [s * 0.012, 1.22], [s * 0.012, 0.95]]); rect(g, reflet, s > 0 ? 0.1 : -0.17, 1.08, 0.07, 0.005); });
+          for (const y of [1.17, 1.1, 1.03]) rond(g, '#55555c', 0.004, y, 0.007);
+          poly(g, peau, [[-0.04, 1.56], [0.04, 1.56], [0.004, 1.47]]); col(g, '#ffffff', '#c9c6bd');
+          cravate(g, '#0b0b0c', { noeud: 1.45, bout: 1.0, l: 0.02, dx: 0.03 }, (c) => trait(c, 'rgba(255,255,255,.12)', 0.004, [[0.0, 1.42], [0.02, 1.1]]));
+          rect(g, '#0b0b0c', -0.012, 1.45, 0.022, 0.07); }
+        else { symetrie((s) => poly(g, '#1d1d22', [[s * 0.06, 1.55], [s * 0.16, 1.53], [s * 0.175, 1.42], [s * 0.215, 1.33], [s * 1.0, 1.3], [s * 1.0, 0.8], [0, 0.8], [0, 1.55]]));
+          rect(g, '#141416', -0.12, 1.02, 0.24, 0.02); trait(g, reflet, 0.004, [[0, 1.5], [0, 1.0]]); } });
+      Z.bras((g) => { manches(g, peau, blanc, 0.37); symetrie((s) => { rect(g, pli, s > 0 ? 0.335 : -0.37, 0.8, 0.035, 1); trait(g, '#bdb8ac', 0.004, [[s * 0.338, 0.8], [s * 0.338, 1.8]]); trait(g, '#bdb8ac', 0.004, [[s * 0.352, 0.8], [s * 0.352, 1.8]]); }); });
+      Z.bas((g, dos) => { plein(g, '#1c2535'); for (let x = -0.5; x < 0.5; x += 0.018) rect(g, 'rgba(120,140,180,.05)', x, 0, 0.007, 1);
+        symetrie((s) => { trait(g, '#8a6a3a', 0.003, [[s * 0.172, 0.95], [s * 0.172, 0.14]]); rond(g, 'rgba(150,170,210,.14)', s * 0.119, 0.72, 0.04, 0.11); rond(g, 'rgba(150,170,210,.1)', s * 0.119, 0.5, 0.035, 0.035);
+          if (dos) poly(g, '#18202e', [[s * 0.07, 0.92], [s * 0.16, 0.92], [s * 0.155, 0.82], [s * 0.115, 0.8], [s * 0.075, 0.82]]); else trait(g, '#8a6a3a', 0.003, [[s * 0.05, 0.94], [s * 0.1, 0.89], [s * 0.17, 0.89]]); });
+        rect(g, '#161d2a', -0.5, 0.1, 1, 0.035); ceinture(g, '#0e0e0f', null); if (!dos) rect(g, '#9a9da4', -0.018, 0.962, 0.036, 0.034);
+        souliers(g, '#f2efe6', { haut: 0.1, bout: dos ? null : '#fbfaf6', lacets: dos ? null : '#a9a59b' }); rect(g, '#cfcbc0', -0.5, 0.012, 1, 0.006); if (!dos) symetrie((s) => rond(g, '#2a2a2e', s * 0.17, 0.06, 0.006)); });
     },
-    pieces(S, M) { const H = S('Head'), feutre = M(0x121214, { roughness: 0.7 });
-      chapeau(H, feutre, { y: 1.782, r: 0.118, rHaut: 0.11, h: 0.105, bord: 0.2, penche: -0.07 });
-      H.aj(new THREE.CylinderGeometry(0.1195, 0.12, 0.022, 18), M(0x2c2c30, { roughness: 0.5 }), 0, 1.795, CZ - 0.004, -0.07, 0, 0); H.boule(feutre, 0.108, 0, 1.878, CZ + 0.002, 1, 0.22, 1, 2);
+    pieces(S, M) { const H = S('Head'), feutre = M(0x111113, { roughness: 0.55 }), ruban = M(0x2a2a2f, { roughness: 0.35, metalness: 0.1 }), brun = M(0x2b1e16, { roughness: 1 });
+      H.aj(new THREE.CylinderGeometry(0.12, 0.114, 0.115, 24), feutre, 0, 1.785 + 0.0575, CZ - 0.008, -0.05, 0, 0);
+      H.aj(new THREE.CylinderGeometry(0.168, 0.168, 0.012, 28), feutre, 0, 1.785, CZ - 0.008, -0.05, 0, 0, 1, 1, 0.9);
+      H.aj(new THREE.CylinderGeometry(0.1155, 0.1155, 0.032, 24), ruban, 0, 1.806, CZ - 0.009, -0.05, 0, 0);
+      for (const s of [-1, 1]) { H.boule(brun, 0.035, s * 0.1, 1.74, CZ + 0.02, 0.6, 1.1, 1.2); H.boule(brun, 0.03, s * 0.092, 1.7, CZ - 0.04, 0.6, 1, 1); }
+      H.boule(brun, 0.09, 0, 1.73, CZ - 0.06, 1.15, 0.6, 0.7);
+      H.boule(brun, 0.014, 0, 1.558, 0.148, 1.0, 1.4, 0.7);
+    } },
+  { id: 'bily', nom: 'Bily Vert', micro: 'bily', chant: true, peau: 0xefcfb4,
+    matiere: matieres({ peau: 0xefcfb4, semelle: 0xf2f2ee }),
+    peindre(Z) { const peau = css(this.peau), tee = '#26282c', vert = '#9dff1a';
+      Z.haut((g, dos) => { plein(g, tee); for (let y = 1.02; y < 1.5; y += 0.07) trait(g, 'rgba(255,255,255,.05)', 0.01, [[-0.3, y], [0.3, y + 0.01]]);
+        if (!dos) { rect(g, vert, -0.09, 1.2, 0.18, 0.05); rect(g, vert, -0.09, 1.12, 0.12, 0.03); } else { rect(g, vert, -0.11, 1.32, 0.22, 0.06); }
+        trait(g, '#16171a', 0.014, [[-0.1, 1.54], [0, 1.5], [0.1, 1.54]]); });
+      Z.bras((g) => { plein(g, peau); rect(g, tee, -0.5, 0.8, 1.0, 1); symetrie((s) => rect(g, vert, s > 0 ? 0.47 : -0.5, 0.8, 0.03, 1)); });
+      Z.bas((g, dos) => { plein(g, peau); rect(g, '#1d1f23', -0.5, 0.52, 1, 0.5); symetrie((s) => { rect(g, vert, s * 0.215 - 0.008, 0.52, 0.016, 0.45); });
+        rect(g, '#f4f4f0', -0.5, 0.14, 1, 0.22); rect(g, vert, -0.5, 0.33, 1, 0.012); rect(g, '#f4f4f0', -0.5, 0, 1, 0.13); rect(g, '#2a2b30', -0.5, 0, 1, 0.025);
+        if (!dos) symetrie((s) => { for (let y = 0.05; y < 0.13; y += 0.022) trait(g, vert, 0.004, [[s * 0.1, y], [s * 0.15, y + 0.01]]); }); });
+    },
+    pieces(S, M) { const H = S('Head'), noir = M(0x0a0a0c, { roughness: 0.6 }), vert = M(0x9dff1a, { roughness: 0.5, emissive: 0x3d8a00, emissiveIntensity: 0.5 }), tee = M(0x26282c);
+      H.boule(noir, 0.118, 0, 1.735, CZ - 0.02, 1.02, 0.8, 1.14, 2); H.boule(noir, 0.1, 0, 1.64, -0.08, 1.15, 1.5, 0.8, 1);
+      for (const s of [-1, 1]) { H.boule(noir, 0.05, s * 0.108, 1.66, CZ + 0.02, 0.75, 1.9, 1.3); H.boule(noir, 0.045, s * 0.112, 1.58, CZ - 0.01, 0.8, 1.6, 1.2); H.boule(noir, 0.04, s * 0.1, 1.5, CZ - 0.02, 0.8, 1.3, 1.1); H.boule(noir, 0.05, s * 0.03, 1.77, 0.15, 1.9, 0.6, 0.8); }
+      for (let i = 0; i < 10; i++) { const t = i / 9; H.boule(vert, 0.03, 0, 1.808 - 0.03 * t, 0.135 - t * 0.2, 0.8, 0.9, 1.3); }
+      for (const s of [-1, 1]) for (let i = 0; i < 6; i++) { const t = i / 5; H.boule(vert, 0.02, s * (0.02 + t * 0.05), 1.795 - t * 0.04, 0.125 - t * 0.12); }
+      const T = S('Chest'); T.boule(tee, 0.2, 0, 1.25, 0.0, 1.45, 1.3, 1.0, 1); T.boule(tee, 0.19, 0, 1.08, 0.0, 1.4, 1.0, 1.0, 1);
+      for (const [os, s] of [['UpperArmL', 1], ['UpperArmR', -1]]) S(os).cyl(tee, 0.09, 0.105, 0.3, s * 0.36, 1.43, 0, 0, 0, PI / 2, 14);
+      S('UpperLegL').cyl(M(0x1d1f23), 0.14, 0.17, 0.5, 0.11, 0.72, 0, 0, 0, 0, 14); S('UpperLegR').cyl(M(0x1d1f23), 0.14, 0.17, 0.5, -0.11, 0.72, 0, 0, 0, 0, 14);
+    } },
+  { id: 'sabri', nom: 'Sabri Miel', micro: 'sabri', chant: true, peau: 0xf0cdb0,
+    matiere: matieres({ peau: 0xf0cdb0, semelle: 0xf4eee2 }),
+    peindre(Z) { const peau = css(this.peau), robe = '#7fb7e0', r = alea(41);
+      const pail = (g, y0, y1, x0 = -1, x1 = 1) => { for (let i = 0; i < Math.round((y1 - y0) * (x1 - x0) * 2200); i++) { const x = x0 + r() * (x1 - x0), y = y0 + r() * (y1 - y0); g.fillStyle = ['#dff1ff', '#ffffff', '#4a8fc8', '#ffe9a8', '#b8dcf5'][(r() * 5) | 0]; g.fillRect(x, y, 0.007, 0.007); } };
+      Z.haut((g, dos) => { plein(g, robe); pail(g, 0.8, 1.8); trait(g, '#e8f4ff', 0.01, [[-0.14, 1.53], [0, 1.47], [0.14, 1.53]]); rect(g, '#f4f9ff', -0.2, 1.0, 0.4, 0.018);
+        poly(g, peau, [[-0.1, 1.56], [0.1, 1.56], [0.14, 1.5], [0, 1.43], [-0.14, 1.5]]); });
+      Z.bras((g) => { plein(g, peau); rect(g, robe, -0.33, 0.8, 0.66, 1); });
+      Z.bas((g, dos) => { plein(g, peau); rect(g, robe, -0.5, 0.74, 1, 0.3); for (let i = 0; i < 2600; i++) { const x = -0.5 + r(), y = 0.74 + r() * 0.3; g.fillStyle = ['#dff1ff', '#ffffff', '#4a8fc8', '#ffe9a8'][(r() * 4) | 0]; g.fillRect(x, y, 0.007, 0.007); }
+        rect(g, '#f4f9ff', -0.5, 0.74, 1, 0.014);
+        rect(g, '#f6f0e4', -0.5, 0, 1, 0.09); symetrie((s) => { trait(g, '#f6f0e4', 0.01, [[s * 0.12, 0.09], [s * 0.12, 0.17]]); }); rect(g, '#d8b878', -0.5, 0.09, 1, 0.01); });
+    },
+    pieces(S, M) { const H = S('Head'), bl = M(0xe9cf82, { roughness: 0.5 }), blF = M(0xd9ba66, { roughness: 0.5 });
+      H.boule(bl, 0.118, 0, 1.74, CZ - 0.02, 1.04, 0.85, 1.16, 2); H.boule(bl, 0.11, 0, 1.6, -0.075, 1.2, 2.3, 0.85, 1);
+      for (const s of [-1, 1]) { for (let k = 0; k < 4; k++) H.boule(k % 2 ? blF : bl, 0.048 - k * 0.004, s * (0.115 + k * 0.004), 1.66 - k * 0.07, CZ + 0.0 - k * 0.025, 0.8, 1.4, 1.2); }
+      for (const s of [-1, 1]) { for (let k = 0; k < 5; k++) { const t = k / 4; H.boule(k % 2 ? blF : bl, 0.032, s * (0.02 + t * 0.085), 1.795 - t * 0.095, 0.138 - t * 0.012, 1.1, 1, 0.8); } }
+    } },
+  { id: 'tay', nom: 'Taylor Swing', micro: 'tay', chant: true, peau: 0xf3d5bd,
+    matiere: matieres({ peau: 0xf3d5bd, semelle: 0xd8b24a }),
+    peindre(Z) { const peau = css(this.peau), r = alea(77), corps = '#1d2a6b';
+      const pail = (g, y0, y1, x0, x1, n, cols) => { for (let i = 0; i < n; i++) { g.fillStyle = cols[(r() * cols.length) | 0]; g.fillRect(x0 + r() * (x1 - x0), y0 + r() * (y1 - y0), 0.008, 0.008); } };
+      Z.haut((g, dos) => { plein(g, corps); pail(g, 0.8, 1.8, -1, 1, 5200, ['#7f9bff', '#c9d6ff', '#ffffff', '#ff8ad4', '#53e0e0', '#2d3f9a']);
+        for (let y = 1.02; y < 1.5; y += 0.09) trait(g, 'rgba(255,255,255,.12)', 0.006, [[-0.3, y], [0.3, y + 0.025]]);
+        poly(g, peau, [[-0.1, 1.56], [0.1, 1.56], [0.15, 1.5], [0, 1.4], [-0.15, 1.5]]); trait(g, '#e8edff', 0.008, [[-0.15, 1.5], [0, 1.4], [0.15, 1.5]]); });
+      Z.bras((g) => { plein(g, peau); rect(g, corps, -0.45, 0.8, 0.9, 1); pail(g, 0.8, 1.8, -0.45, 0.45, 2000, ['#7f9bff', '#c9d6ff', '#ffffff', '#ff8ad4']); });
+      Z.bas((g, dos) => { plein(g, peau); rect(g, corps, -0.5, 0.88, 1, 0.14); pail(g, 0.88, 1.02, -0.5, 0.5, 600, ['#7f9bff', '#c9d6ff', '#ffffff', '#ff8ad4']);
+        rect(g, '#c9a24a', -0.5, 0, 1, 0.5); pail(g, 0, 0.5, -0.5, 0.5, 2600, ['#fff2b8', '#ffe07a', '#ffffff', '#b8892a']); rect(g, '#7a5a1a', -0.5, 0.49, 1, 0.012); });
+    },
+    pieces(S, M) { const H = S('Head'), bl = M(0xe8cf86, { roughness: 0.5 }), blF = M(0xd6b86a, { roughness: 0.5 });
+      H.boule(bl, 0.118, 0, 1.74, CZ - 0.02, 1.04, 0.85, 1.16, 2); H.boule(bl, 0.12, 0, 1.45, -0.085, 1.2, 2.5, 0.75, 1);
+      for (const s of [-1, 1]) for (let k = 0; k < 8; k++) H.boule(k % 2 ? blF : bl, 0.05 - k * 0.002, s * (0.118 + 0.012 * Math.sin(k * 1.3)), 1.66 - k * 0.062, CZ - 0.015 * k + 0.02, 0.8, 1.35, 1.2);
+      for (let k = 0; k < 7; k++) H.boule(k % 2 ? blF : bl, 0.055, 0.07 * Math.sin(k * 1.6), 1.42 - k * 0.075, -0.14 - 0.005 * k, 1.2, 1.2, 1);
+      for (let k = 0; k < 5; k++) { const t = k / 4; H.boule(k % 2 ? blF : bl, 0.034, (t - 0.5) * 0.2, 1.775 - 0.012 * Math.sin(t * PI), 0.148 - Math.abs(t - 0.5) * 0.05, 1.1, 1.0, 0.8); }
+      S('LowerLegL').cyl(M(0xc9a24a, { metalness: 0.5, roughness: 0.3 }), 0.062, 0.075, 0.03, 0.1, 0.5, 0, 0, 0, 0, 14); S('LowerLegR').cyl(M(0xc9a24a, { metalness: 0.5, roughness: 0.3 }), 0.062, 0.075, 0.03, -0.1, 0.5, 0, 0, 0, 0, 14);
+    } },
+  { id: 'bruno', nom: 'Bruno March', micro: 'bruno', chant: true, peau: 0xc99a70,
+    matiere: matieres({ peau: 0xc99a70, semelle: 0x2a1a12 }),
+    peindre(Z) { const peau = css(this.peau), r = alea(9);
+      const imprime = (g, y0, y1, x0, x1) => { g.fillStyle = '#f0a03a'; g.fillRect(x0, y0, x1 - x0, y1 - y0); for (let i = 0; i < 90; i++) { const x = x0 + r() * (x1 - x0), y = y0 + r() * (y1 - y0), q = r(); g.fillStyle = q < 0.3 ? '#2a9d8f' : q < 0.55 ? '#8a2a1e' : q < 0.8 ? '#f6e2b0' : '#1c3a5a'; if (q < 0.5) { g.beginPath(); g.moveTo(x, y - 0.03); g.lineTo(x + 0.03, y + 0.03); g.lineTo(x - 0.03, y + 0.03); g.closePath(); g.fill(); } else rond(g, g.fillStyle, x, y, 0.02 + r() * 0.015); } };
+      Z.haut((g, dos) => { imprime(g, 0.8, 1.8, -1, 1);
+        if (!dos) { poly(g, '#e8c9a0', [[-0.14, 1.56], [0.14, 1.56], [0.09, 0.98], [-0.09, 0.98]]); rect(g, '#f0e6d2', -0.04, 0.98, 0.08, 0.5); symetrie((s) => { poly(g, '#f6e2b0', [[s * 0.012, 1.5], [s * 0.1, 1.56], [s * 0.15, 1.5], [s * 0.06, 1.42]]); trait(g, '#8a2a1e', 0.008, [[s * 0.12, 1.5], [s * 0.1, 0.98]]); });
+          poly(g, peau, [[-0.07, 1.56], [0.07, 1.56], [0.012, 1.2]]); } else { rect(g, '#2a9d8f', -0.15, 1.1, 0.3, 0.015); } });
+      Z.bras((g) => { plein(g, peau); rect(g, '#f0a03a', -0.4, 0.8, 0.8, 1); for (let i = 0; i < 14; i++) { const x = -0.4 + r() * 0.8, y = 0.9 + r() * 0.8; rond(g, ['#2a9d8f', '#8a2a1e', '#f6e2b0'][i % 3], x, y, 0.03); } });
+      Z.bas((g, dos) => { plein(g, '#1f2630'); symetrie((s) => { trait(g, 'rgba(255,255,255,.1)', 0.012, [[s * 0.1, 0.95], [s * 0.1, 0.16]]); }); ceinture(g, '#1a1008', null); if (!dos) rect(g, '#c9a24a', -0.02, 0.962, 0.04, 0.036);
+        souliers(g, '#2a1a12', { haut: 0.11, bout: dos ? null : '#3a2418' }); });
+    },
+    pieces(S, M) { const H = S('Head'), feutre = M(0x2b2a2e, { roughness: 0.6 }), ruban = M(0xd9a23a, { roughness: 0.4 }), noir = M(0x16100c, { roughness: 0.8 }), or = M(0xe8b84a, { metalness: 0.8, roughness: 0.25 });
+      H.aj(new THREE.CylinderGeometry(0.098, 0.116, 0.115, 20), feutre, 0, 1.842, CZ - 0.01, -0.04, 0, 0); H.boite(feutre, 0.04, 0.012, 0.19, 0, 1.906, CZ - 0.01);
+      H.aj(new THREE.CylinderGeometry(0.2, 0.2, 0.012, 28), feutre, 0, 1.785, CZ - 0.005, -0.06, 0, 0, 1.0, 1, 0.92); H.aj(new THREE.CylinderGeometry(0.117, 0.117, 0.03, 20), ruban, 0, 1.806, CZ - 0.01, -0.04, 0, 0);
+      for (const s of [-1, 1]) { H.boule(noir, 0.03, s * 0.1, 1.72, CZ + 0.02, 0.6, 1.2, 1.2); H.boule(noir, 0.032, s * 0.095, 1.69, CZ - 0.04, 0.6, 1, 1); } H.boule(noir, 0.085, 0, 1.72, CZ - 0.06, 1.15, 0.6, 0.7);
+      lunettes(H, M(0x050507, { roughness: 0.25, metalness: 0.2 }), { r: 0.034, z: 0.176, y: 1.67, ecart: 0.044 });
+      H.boule(noir, 0.012, 0, 1.585, 0.154, 3.6, 0.55, 0.7);
+      S('Neck').tore(or, 0.095, 0.011, 0, 1.43, 0.045, PI / 2 - 0.35, 0, 0);
+      S('Chest').aj(new THREE.CylinderGeometry(0.028, 0.028, 0.008, 18), or, 0, 1.31, 0.165, PI / 2, 0, 0);
+    } },
+  { id: 'weekend', nom: 'Weekend Rouge', micro: 'weekend', chant: true, peau: 0xb98660,
+    matiere: matieres({ peau: 0xb98660, semelle: 0x111112 }),
+    peindre(Z) { const peau = css(this.peau), rouge = '#b3141c', fonce = '#80101a';
+      Z.haut((g, dos) => { plein(g, rouge); for (let y = 1.0; y < 1.5; y += 0.08) trait(g, 'rgba(60,0,0,.12)', 0.01, [[-0.3, y], [0.3, y + 0.012]]);
+        if (!dos) { poly(g, '#111114', [[-0.075, 1.56], [0.075, 1.56], [0.06, 0.98], [-0.06, 0.98]]); symetrie((s) => { poly(g, fonce, [[s * 0.06, 1.56], [s * 0.15, 1.5], [s * 0.05, 1.18], [s * 0.012, 1.3]]); trait(g, '#e03a3a', 0.005, [[s * 0.075, 1.54], [s * 0.15, 1.46], [s * 0.04, 1.2]]); });
+          poly(g, peau, [[-0.035, 1.56], [0.035, 1.56], [0.0, 1.46]]); poly(g, '#0b0b0d', [[-0.02, 1.5], [0.02, 1.5], [0.012, 1.4], [0.0, 1.12], [-0.012, 1.4]]); }
+        else { symetrie((s) => trait(g, fonce, 0.006, [[s * 0.02, 1.5], [s * 0.03, 1.0]])); } });
+      Z.bras((g) => { manches(g, peau, rouge, 0.54, '#f2eadc'); });
+      Z.bas((g, dos) => { plein(g, rouge); symetrie((s) => { trait(g, '#e03a3a', 0.006, [[s * 0.1, 0.95], [s * 0.1, 0.14]]); trait(g, fonce, 0.01, [[s * 0.02, 0.9], [s * 0.02, 0.14]]); }); ceinture(g, '#101012', null); if (!dos) rect(g, '#c9a24a', -0.02, 0.962, 0.04, 0.036);
+        souliers(g, '#0e0e10', { haut: 0.115 }); });
+    },
+    pieces(S, M) { const H = S('Head'), noir = M(0x0c0a0a, { roughness: 0.9 });
+      boucles(H, noir, { haut: 1.86, bas: 1.6, r0: 0.116, r1: 0.14, gros: 0.05, ouvert: (y) => (y > 1.76 ? 0.0 : 0.9), graine: 21, aplat: 0.95 });
+      H.boule(noir, 0.06, 0, 1.9, CZ, 1.6, 0.8, 1.4);
+      lunettes(H, M(0x050507, { roughness: 0.2, metalness: 0.2 }), { r: 0.036, z: 0.177, y: 1.668, ecart: 0.046, large: 1.15 });
+    } },
+  { id: 'pinky', nom: 'Pinky Punk', micro: 'pinky', chant: true, peau: 0xf2cfb4,
+    matiere: matieres({ peau: 0xf2cfb4, semelle: 0x151517 }),
+    peindre(Z) { const peau = css(this.peau), r = alea(55), cuir = '#15151a', rose = '#e8338a';
+      Z.haut((g, dos) => { plein(g, cuir);
+        if (!dos) { poly(g, rose, [[-0.13, 1.56], [0.13, 1.56], [0.09, 0.98], [-0.09, 0.98]]); for (let i = 0; i < 700; i++) { g.fillStyle = ['#ffd0ea', '#ffffff', '#ff7ab8', '#c9c9d4'][(r() * 4) | 0]; g.fillRect(-0.12 + r() * 0.24, 0.98 + r() * 0.58, 0.007, 0.007); }
+          symetrie((s) => { trait(g, '#3a3a44', 0.006, [[s * 0.13, 1.54], [s * 0.1, 1.0]]); for (let y = 1.48; y > 1.05; y -= 0.07) rond(g, '#c9c9d4', s * (0.125 - (1.48 - y) * 0.07), y, 0.006); }); poly(g, peau, [[-0.07, 1.56], [0.07, 1.56], [0, 1.47]]); }
+        else { for (let y = 1.1; y < 1.5; y += 0.09) trait(g, 'rgba(255,255,255,.1)', 0.008, [[-0.3, y], [0.3, y + 0.02]]); rond(g, '#c9c9d4', 0, 1.3, 0.03); } });
+      Z.bras((g) => { manches(g, peau, cuir, 0.5, '#c9c9d4'); symetrie((s) => { for (const x of [0.3, 0.4]) rond(g, '#c9c9d4', s * x, 1.43, 0.008); }); });
+      Z.bas((g, dos) => { plein(g, cuir); symetrie((s) => { trait(g, 'rgba(255,255,255,.16)', 0.012, [[s * 0.1, 0.95], [s * 0.095, 0.4]]); trait(g, 'rgba(255,255,255,.08)', 0.03, [[s * 0.15, 0.9], [s * 0.15, 0.3]]); });
+        ceinture(g, '#0a0a0c', '#c9c9d4'); if (!dos) rect(g, rose, -0.02, 0.962, 0.04, 0.036);
+        rect(g, '#0d0d0f', -0.5, 0, 1, 0.24); rect(g, '#2a2a30', -0.5, 0, 1, 0.03); symetrie((s) => { for (const y of [0.08, 0.15, 0.21]) rect(g, '#c9c9d4', s * 0.13 - 0.03, y, 0.06, 0.01); }); });
+    },
+    pieces(S, M) { const H = S('Head'), plat = M(0xf1ecd6, { roughness: 0.55 }), platF = M(0xdcd5b4, { roughness: 0.55 }), arg = argent();
+      H.boule(plat, 0.112, 0, 1.745, CZ - 0.02, 1.0, 0.78, 1.1, 2);
+      for (let k = 0; k < 16; k++) { const a = k / 16 * 2 * PI, rr = 0.045 + (k % 3) * 0.035, y = 1.80 + 0.008 * (k % 3), long = 0.085 + 0.03 * ((k * 7) % 3);
+        H.cone(k % 2 ? plat : platF, 0.03, long, Math.sin(a) * rr, y + long / 2 - 0.02, CZ - 0.02 + Math.cos(a) * rr * 1.1, Math.cos(a) * 0.5, 0, -Math.sin(a) * 0.5, 5); }
+      for (const s of [-1, 1]) { H.cone(plat, 0.026, 0.07, s * 0.108, 1.7, CZ - 0.01, 0, 0, -s * 1.1, 5); H.tore(arg, 0.018, 0.004, s * 0.106, 1.6, CZ + 0.0, 0, PI / 2, 0); }
+      H.cone(plat, 0.03, 0.09, 0, 1.83, 0.12, -0.9, 0, 0, 5);
+      for (const [os, sg] of [['LowerArmL', 1], ['LowerArmR', -1]]) { S(os).tore(M(0x0c0c0e), 0.037, 0.009, sg * 0.52, 1.415, 0.0, 0, PI / 2, 0); S(os).tore(arg, 0.039, 0.003, sg * 0.5, 1.415, 0.0, 0, PI / 2, 0); }
     } },
 ];
