@@ -591,6 +591,7 @@ function appliquerPoseV20() {
 }
 function faireChanteurKit(K, t0 = 0.5) {
   const A = AVATARS.casual, m = SkeletonUtils.clone(A.modele), wrap = new THREE.Group(), clip = A.clips.find((c) => c.name.endsWith('|Idle_Neutral')) || A.clips[0];
+  { const Q = []; m.traverse((x) => { if (x.userData && x.userData.kit) Q.push(x); }); for (const x of Q) if (x.parent) x.parent.remove(x); }
   const mx = new THREE.AnimationMixer(m); mx.clipAction(clip).play(); mx.update(t0);
   const tex = faireAtlasKit(K, 1024), mAtlas = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8, metalness: 0 }), unis = new Map(), uni = (c) => { if (!unis.has(c)) unis.set(c, new THREE.MeshStandardMaterial({ color: c, roughness: 0.8, metalness: 0 })); return unis.get(c); };
   const lesPeaux = []; m.traverse((o) => { if (o.isSkinnedMesh) lesPeaux.push(o); });
